@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login Response</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .result-box {
+            background-color: #f9f9f9;
+            border: 1px solid #e1e4e4;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .result-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .result-content {
+            font-size: 14px;
+            color: #666;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Test Login Response</h1>
+        <div class="result-box">
+            <div class="result-title">Test Results</div>
+            <div class="result-content" id="test-result"></div>
+        </div>
+    
+    <div class="btn" onclick="testLogin()">Test Login</div>
+    </div>
+
+    <script>
+        function testLogin() {
+            // Simulate successful JSON response
+            const successResponse = {
+                message: "Success",
+                userName: "Test User",
+                email: "test@example.com"
+            };
+            
+            // Simulate failed JSON response
+            const failResponse = {
+                message: "Invalid email or password"
+            };
+            
+            // Simulate plain text response
+            const textSuccessResponse = "Login successful";
+            
+            // Test the current implementation
+            const response = document.getElementById('test-result').textContent;
+            
+            // Update the test result
+            if (response === successResponse) {
+                document.getElementById('test-result').innerHTML = `
+                    <div class="result-title">✅ JSON Response Parsed Successfully</div>
+                    <div class="result-content">${JSON.stringify(successResponse, null, 2)}</div>
+                `;
+            } else if (response === textSuccessResponse) {
+                document.getElementById('test-result').innerHTML = `
+                    <div class="result-title">✅ Plain Text Response Parsed Successfully</div>
+                    <div class="result-content">${JSON.stringify(textSuccessResponse, null, 2)}</div>
+                `;
+            } else {
+                document.getElementById('test-result').innerHTML = `
+                    <div class="result-title">❌ Response Parsing Failed</div>
+                    <div class="result-content">${JSON.stringify(response, null, 2)}</div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

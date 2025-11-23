@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartToolsHub - Register</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .register-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 450px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo i {
+            font-size: 3rem;
+            color: #2575fc;
+            margin-bottom: 10px;
+        }
+
+        .logo h2 {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 15px 15px 45px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            border-color: #2575fc;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 117, 252, 0.2);
+        }
+
+        .form-group i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .password-strength {
+            height: 5px;
+            margin-top: 5px;
+            border-radius: 3px;
+            transition: all 0.3s;
+        }
+
+        .strength-weak { background-color: #e74c3c; width: 33%; }
+        .strength-medium { background-color: #f39c12; width: 66%; }
+        .strength-strong { background-color: #2ecc71; width: 100%; }
+
+        .register-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 117, 252, 0.4);
+        }
+
+        .register-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .login-link a {
+            color: #2575fc;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #2575fc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.success {
+            background-color: #2ecc71;
+        }
+
+        .notification.error {
+            background-color: #e74c3c;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container">
+        <div class="logo">
+            <i class="fas fa-tools"></i>
+            <h2>Smart Tools Hub</h2>
+            <p>Create your account --></p>
+        </div>
+
+        <form id="register-form">
+            <div class="form-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="username" placeholder="Username">
+                <div id="username-error" class="error-message">Please enter a username</div>
+            </div>
+            
+            <div class="form-group">
+                <i class="fas fa-user"></i>
+                <input type="text" id="fullName" placeholder="Full Name">
+                <div id="name-error" class="error-message">Please enter your full name</div>
+            </div>
+            
+            <div class="form-group">
+                <i class="fas fa-envelope"></i>
+                <input type="email" id="email" placeholder="Email">
+                <div id="email-error" class="error-message">Please enter a valid email</div>
+            </div>
+            
+            <div class="form-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="password" placeholder="Password">
+                <div id="password-strength" class="password-strength"></div>
+                <div id="password-error" class="error-message">Password must be at least 8 characters</div>
+            </div>
+            
+            <div class="form-group">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="confirm-password" placeholder="Confirm Password">
+                <div id="confirm-password-error" class="error-message">Passwords do not match</div>
+            </div>
+
+            <button type="button" class="register-btn" onclick="register()">Register</button>
+            <div id="loading" class="loading"></div>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="login.html">Login</a>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Password strength checker
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.getElementById('password-strength');
+            
+            if (password.length < 6) {
+                strengthBar.className = 'password-strength strength-weak';
+            } else if (password.length < 10 || !/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+                strengthBar.className = 'password-strength strength-medium';
+            } else {
+                strengthBar.className = 'password-strength strength-strong';
+            }
+        });
+
+        function validateEmail(email) {
+            const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        function showNotification(message, type) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // DEBUG: Add this function to test the form data
+        function debugFormData() {
+            let username = document.getElementById('username').value.trim();
+            let fullName = document.getElementById('fullName').value.trim();
+            let email = document.getElementById('email').value.trim();
+            let password = document.getElementById('password').value.trim();
+            let confirmPassword = document.getElementById('confirm-password').value.trim();
+            
+            console.log("Form Data:");
+            console.log("Username: '" + username + "'");
+            console.log("Full Name: '" + fullName + "'");
+            console.log("Email: '" + email + "'");
+            console.log("Password: '" + password + "'");
+            console.log("Confirm Password: '" + confirmPassword + "'");
+            
+            // Create the JSON object that will be sent
+            const jsonData = { username, fullName, email, password };
+            console.log("JSON to be sent:");
+            console.log(JSON.stringify(jsonData));
+        }
+
+        function register() {
+            // Reset error messages
+            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+            
+            // Get all form values
+            let username = document.getElementById('username').value.trim();
+            let fullName = document.getElementById('fullName').value.trim();
+            let email = document.getElementById('email').value.trim();
+            let password = document.getElementById('password').value.trim();
+            let confirmPassword = document.getElementById('confirm-password').value.trim();
+            
+            // DEBUG: Log form data before sending
+            debugFormData();
+            
+            let isValid = true;
+            
+            // Validate username
+            if (username === "") {
+                document.getElementById('username-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate full name
+            if (fullName === "") {
+                document.getElementById('name-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate email
+            if (email === "" || !validateEmail(email)) {
+                document.getElementById('email-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate password
+            if (password === "" || password.length < 8) {
+                document.getElementById('password-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate password confirmation
+            if (password !== confirmPassword) {
+                document.getElementById('confirm-password-error').style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) return;
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.querySelector('.register-btn').disabled = true;
+            
+            // Create the data object
+            const userData = { username, fullName, email, password };
+            
+            console.log("Sending data:", JSON.stringify(userData));
+            
+            // Send data to backend
+            fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(userData)
+            })
+            .then(res => {
+                if (!res.ok) {
+                    return res.text().then(text => { throw new Error(text) });
+                }
+                return res.text();
+            })
+            .then(msg => {
+                showNotification('Registration successful! Redirecting to login...', 'success');
+                setTimeout(() => {
+                    window.location.href = "login.html";
+                }, 2000);
+            })
+            .catch(err => {
+                document.getElementById('loading').style.display = 'none';
+                document.querySelector('.register-btn').disabled = false;
+                
+                // Show specific error message from server
+                showNotification(err.message || 'Registration failed. Please try again.', 'error');
+            });
+        }
+    </script>
+</body>
+</html>

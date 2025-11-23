@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encryption & Encoding Tools - Smart Tools Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Specific styles for this page -->
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f7f9fc; }
+        .navbar { /* ... same as before ... */ padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .logo { font-size: 22px; font-weight: bold; color: #0066ff; text-decoration: none; }
+        .nav-links a { margin: 0 15px; text-decoration: none; color: #333; }
+        .user-info { display: flex; align-items: center; gap: 15px; font-weight: bold; }
+        .logout-btn { padding: 8px 14px; background: #0066ff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+
+        .tool-container { max-width: 900px; margin: 40px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .tool-container h1 { color: #333; text-align: center; }
+        .tool-container p { color: #666; text-align: center; margin-bottom: 30px; }
+
+        /* Tabs */
+        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+        .tab-button { background: none; border: none; padding: 15px 20px; font-size: 16px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab-button.active { border-bottom-color: #0066ff; color: #0066ff; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Form Controls */
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        .form-group textarea, .form-group input[type="text"], .form-group input[type="date"], .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        .form-group .output-area { background-color: #f0f2f5; border-color: #ddd; }
+        .btn-container { display: flex; gap: 10px; flex-wrap: wrap; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; transition: background-color 0.3s; }
+        .btn-primary { background: #0066ff; color: white; }
+        .btn-primary:hover { background: #0052cc; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .info-text { font-size: 12px; color: #777; margin-top: 5px; }
+        
+        /* New style for key area with download button */
+        .key-area {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .key-area textarea {
+            flex-grow: 1;
+        }
+        
+        /* New styles for form layout */
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        /* Certificate info display */
+        .cert-info {
+            background-color: #f0f2f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+        .cert-info h3 {
+            margin-top: 0;
+            color: #0066ff;
+        }
+        .cert-info p {
+            margin: 5px 0;
+        }
+        .cert-info .label {
+            font-weight: bold;
+            display: inline-block;
+            width: 120px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAVBAR (Same as index.html) -->
+<div class="navbar">
+    <a href="index.html" class="logo">🔧 Smart Tools Hub</a>
+    <div class="nav-links">
+        <a href="index.html">Home</a>
+    </div>
+    <div class="user-info">
+        <span id="username">Loading...</span>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<!-- MAIN TOOL CONTENT -->
+<div class="tool-container">
+    <h1>🔐 Encryption & Encoding Tools</h1>
+    <p>A suite of client-side tools for encoding, hashing, and encryption. Your data never leaves your browser.</p>
+
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab-button active" onclick="showTab('base64')">Base64</button>
+        <button class="tab-button" onclick="showTab('hashing')">Hashing (SHA)</button>
+        <button class="tab-button" onclick="showTab('aes')">AES Encryption</button>
+        <button class="tab-button" onclick="showTab('rsa')">RSA Key Pair</button>
+    </div>
+
+    <!-- Base64 Tab -->
+    <div id="base64" class="tab-content active">
+        <div class="form-group">
+            <label for="b64-input">Input Text</label>
+            <textarea id="b64-input" placeholder="Enter text to encode or decode..."></textarea>
+        </div>
+        <div class="btn-container">
+            <button class="btn btn-primary" onclick="base64Encode()">Encode</button>
+            <button class="btn btn-secondary" onclick="base64Decode()">Decode</button>
+        </div>
+        <div class="form-group">
+            <label for="b64-output">Output</label>
+            <textarea id="b64-output" class="output-area" readonly placeholder="Result will appear here..."></textarea>
+        </div>
+    </div>
+
+    <!-- Hashing Tab -->
+    <div id="hashing" class="tab-content">
+        <div class="form-group">
+            <label for="hash-input">Input Text</label>
+            <textarea id="hash-input" placeholder="Enter text to hash..."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="hash-algorithm">Algorithm</label>
+            <select id="hash-algorithm">
+                <option value="SHA-256">SHA-256</option>
+                <option value="SHA-512">SHA-512</option>
+            </select>
+        </div>
+        <div class="btn-container">
+            <button class="btn btn-success" onclick="generateHash()">Generate Hash</button>
+        </div>
+        <div class="form-group">
+            <label for="hash-output">Hash Output</label>
+            <textarea id="hash-output" class="output-area" readonly placeholder="Hash will appear here..."></textarea>
+        </div>
+    </div>
+
+    <!-- AES Tab -->
+    <div id="aes" class="tab-content">
+        <div class="form-group">
+            <label for="aes-input">Plain Text</label>
+            <textarea id="aes-input" placeholder="Enter text to encrypt..."></textarea>
+        </div>
+        <div class="form-group">
+            <label for="aes-key">Secret Key (min 32 characters for AES-256)</label>
+            <input type="text" id="aes-key" placeholder="Enter a strong secret key...">
+            <p class="info-text">A random key will be generated if you leave this blank.</p>
+        </div>
+        <div class="btn-container">
+            <button class="btn btn-primary" onclick="aesEncrypt()">Encrypt</button>
+            <button class="btn btn-danger" onclick="aesDecrypt()">Decrypt</button>
+        </div>
+        <div class="form-group">
+            <label for="aes-output">Encrypted / Decrypted Output</label>
+            <textarea id="aes-output" class="output-area" readonly placeholder="Result will appear here..."></textarea>
+        </div>
+    </div>
+
+    <!-- RSA Tab (Updated with client/domain info) -->
+    <div id="rsa" class="tab-content">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="rsa-client">Client Name</label>
+                <input type="text" id="rsa-client" placeholder="e.g., John Doe or Company Name">
+            </div>
+            <div class="form-group">
+                <label for="rsa-domain">Domain</label>
+                <input type="text" id="rsa-domain" placeholder="e.g., example.com">
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label for="rsa-valid-from">Valid From</label>
+                <input type="date" id="rsa-valid-from">
+            </div>
+            <div class="form-group">
+                <label for="rsa-valid-to">Valid To</label>
+                <input type="date" id="rsa-valid-to">
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="rsa-keysize">Key Size</label>
+            <select id="rsa-keysize">
+                <option value="2048">2048 bits (Recommended)</option>
+                <option value="4096">4096 bits (More Secure, Slower)</option>
+            </select>
+        </div>
+        
+        <div class="btn-container">
+            <button class="btn btn-success" onclick="generateRsaKeyPair()">Generate Key Pair</button>
+        </div>
+        
+        <!-- Certificate Information Display -->
+        <div id="cert-info" class="cert-info" style="display: none;">
+            <h3>Certificate Information</h3>
+            <p><span class="label">Client:</span> <span id="cert-client"></span></p>
+            <p><span class="label">Domain:</span> <span id="cert-domain"></span></p>
+            <p><span class="label">Valid From:</span> <span id="cert-valid-from"></span></p>
+            <p><span class="label">Valid To:</span> <span id="cert-valid-to"></span></p>
+            <p><span class="label">Key Size:</span> <span id="cert-keysize"></span></p>
+            <p><span class="label">Generated:</span> <span id="cert-generated"></span></p>
+        </div>
+        
+        <div class="form-group">
+            <label for="rsa-public-key">Public Key (Share this)</label>
+            <div class="key-area">
+                <textarea id="rsa-public-key" class="output-area" readonly placeholder="Public key will appear here..."></textarea>
+                <button class="btn btn-secondary" id="downloadPubBtn" onclick="downloadKey('public')" style="display:none;">Download .pem</button>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="rsa-private-key">Private Key (Keep this secret!)</label>
+            <div class="key-area">
+                <textarea id="rsa-private-key" class="output-area" readonly placeholder="Private key will appear here..."></textarea>
+                <button class="btn btn-secondary" id="downloadPrivBtn" onclick="downloadKey('private')" style="display:none;">Download .pem</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- SESSION & LOGOUT (Same as index.html) ---
+    fetch("/api/auth/session").then(res => res.json()).then(data => {
+        if (data.loggedIn) { document.getElementById("username").textContent = data.email; }
+        else { window.location.href = "login.html"; }
+    }).catch(error => { console.error("Error checking session:", error); window.location.href = "login.html"; });
+    function logout() { fetch("/api/auth/logout", { method: "POST" }).then(() => window.location.href = "login.html"); }
+
+    // --- TAB FUNCTIONALITY ---
+    function showTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // --- HELPER FUNCTIONS ---
+    function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) { binary += String.fromCharCode(bytes[i]); }
+        return window.btoa(binary);
+    }
+    function base64ToArrayBuffer(base64) {
+        const binaryString = window.atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) { bytes[i] = binaryString.charCodeAt(i); }
+        return bytes.buffer;
+    }
+
+    // --- BASE64 ---
+    function base64Encode() { 
+        const input = document.getElementById('b64-input').value; 
+        const output = document.getElementById('b64-output'); 
+        try { 
+            const encodedData = new TextEncoder().encode(input); 
+            output.value = arrayBufferToBase64(encodedData); 
+        } catch (error) { 
+            output.value = "Error: " + error.message; 
+        } 
+    }
+    
+    function base64Decode() { 
+        const input = document.getElementById('b64-input').value; 
+        const output = document.getElementById('b64-output'); 
+        try { 
+            const decodedData = base64ToArrayBuffer(input); 
+            output.value = new TextDecoder().decode(decodedData); 
+        } catch (error) { 
+            output.value = "Error: Invalid Base64 string."; 
+        } 
+    }
+
+    // --- HASHING ---
+    async function generateHash() { 
+        const input = document.getElementById('hash-input').value; 
+        const algorithm = document.getElementById('hash-algorithm').value; 
+        const output = document.getElementById('hash-output'); 
+        if (!input) { 
+            output.value = "Error: Input cannot be empty."; 
+            return; 
+        } 
+        try { 
+            const encoder = new TextEncoder(); 
+            const data = encoder.encode(input); 
+            const hashBuffer = await crypto.subtle.digest(algorithm, data); 
+            const hashArray = Array.from(new Uint8Array(hashBuffer)); 
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join(''); 
+            output.value = hashHex; 
+        } catch (error) { 
+            output.value = "Error: " + error.message; 
+        } 
+    }
+
+    // --- AES ENCRYPTION/DECRYPTION ---
+    async function aesEncrypt() { 
+        const plaintext = document.getElementById('aes-input').value; 
+        const keyInput = document.getElementById('aes-key').value; 
+        const output = document.getElementById('aes-output'); 
+        if (!plaintext) { 
+            output.value = "Error: Plain text cannot be empty."; 
+            return; 
+        } 
+        try { 
+            let key; 
+            if (keyInput) { 
+                key = await crypto.subtle.importKey('raw', new TextEncoder().encode(keyInput), { name: 'AES-GCM' }, false, ['encrypt']); 
+            } else { 
+                key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, true, ['encrypt']); 
+                document.getElementById('aes-key').value = arrayBufferToBase64(await crypto.subtle.exportKey('raw', key)); 
+            } 
+            const iv = crypto.getRandomValues(new Uint8Array(12)); 
+            const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, new TextEncoder().encode(plaintext)); 
+            const combined = new Uint8Array(iv.byteLength + encrypted.byteLength); 
+            combined.set(iv, 0); 
+            combined.set(new Uint8Array(encrypted), iv.byteLength); 
+            output.value = arrayBufferToBase64(combined.buffer); 
+        } catch (error) { 
+            output.value = "Error: " + error.message; 
+        } 
+    }
+    
+    async function aesDecrypt() { 
+        const ciphertext = document.getElementById('aes-input').value; 
+        const keyInput = document.getElementById('aes-key').value; 
+        const output = document.getElementById('aes-output'); 
+        if (!ciphertext || !keyInput) { 
+            output.value = "Error: Ciphertext and key are required."; 
+            return; 
+        } 
+        try { 
+            const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(keyInput), { name: 'AES-GCM' }, false, ['decrypt']); 
+            const combinedData = base64ToArrayBuffer(ciphertext); 
+            const iv = combinedData.slice(0, 12); 
+            const data = combinedData.slice(12); 
+            const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, data); 
+            output.value = new TextDecoder().decode(decrypted); 
+        } catch (error) { 
+            output.value = "Error: Decryption failed. Check your ciphertext and key."; 
+        } 
+    }
+
+    // --- RSA KEY PAIR GENERATION (UPDATED) ---
+    let generatedPublicKeyB64 = '';
+    let generatedPrivateKeyB64 = '';
+    let certificateInfo = {};
+
+    // Set default dates for validity period
+    window.onload = function() {
+        const today = new Date();
+        const nextYear = new Date(today);
+        nextYear.setFullYear(today.getFullYear() + 1);
+        
+        document.getElementById('rsa-valid-from').value = today.toISOString().split('T')[0];
+        document.getElementById('rsa-valid-to').value = nextYear.toISOString().split('T')[0];
+    };
+
+    async function generateRsaKeyPair() {
+        // Get form values
+        const client = document.getElementById('rsa-client').value || 'Unknown Client';
+        const domain = document.getElementById('rsa-domain').value || 'example.com';
+        const validFrom = document.getElementById('rsa-valid-from').value;
+        const validTo = document.getElementById('rsa-valid-to').value;
+        const keySize = parseInt(document.getElementById('rsa-keysize').value);
+        
+        // Validate dates
+        const fromDate = new Date(validFrom);
+        const toDate = new Date(validTo);
+        const today = new Date();
+        
+        if (fromDate > toDate) {
+            alert('Error: Valid From date must be before Valid To date.');
+            return;
+        }
+        
+        if (fromDate < today) {
+            alert('Error: Valid From date cannot be in the past.');
+            return;
+        }
+        
+        // Get output elements
+        const publicKeyOutput = document.getElementById('rsa-public-key');
+        const privateKeyOutput = document.getElementById('rsa-private-key');
+        const downloadPubBtn = document.getElementById('downloadPubBtn');
+        const downloadPrivBtn = document.getElementById('downloadPrivBtn');
+        const certInfo = document.getElementById('cert-info');
+        
+        // Set loading state
+        publicKeyOutput.value = "Generating...";
+        privateKeyOutput.value = "Generating...";
+        downloadPubBtn.style.display = 'none';
+        downloadPrivBtn.style.display = 'none';
+        certInfo.style.display = 'none';
+
+        try {
+            // Generate RSA key pair
+            const keyPair = await crypto.subtle.generateKey(
+                { name: 'RSA-OAEP', modulusLength: keySize, publicExponent: new Uint8Array([1, 0, 1]), hash: {name: 'SHA-256'} },
+                true,
+                ['encrypt', 'decrypt']
+            );
+
+            // Export keys
+            const publicKey = await crypto.subtle.exportKey('spki', keyPair.publicKey);
+            const privateKey = await crypto.subtle.exportKey('pkcs8', keyPair.privateKey);
+
+            // Convert to base64
+            generatedPublicKeyB64 = arrayBufferToBase64(publicKey);
+            generatedPrivateKeyB64 = arrayBufferToBase64(privateKey);
+
+            // Store certificate information
+            certificateInfo = {
+                client: client,
+                domain: domain,
+                validFrom: validFrom,
+                validTo: validTo,
+                keySize: keySize,
+                generated: new Date().toISOString()
+            };
+
+            // Update UI
+            publicKeyOutput.value = generatedPublicKeyB64;
+            privateKeyOutput.value = generatedPrivateKeyB64;
+            
+            // Update certificate info display
+            document.getElementById('cert-client').textContent = certificateInfo.client;
+            document.getElementById('cert-domain').textContent = certificateInfo.domain;
+            document.getElementById('cert-valid-from').textContent = certificateInfo.validFrom;
+            document.getElementById('cert-valid-to').textContent = certificateInfo.validTo;
+            document.getElementById('cert-keysize').textContent = certificateInfo.keySize + ' bits';
+            document.getElementById('cert-generated').textContent = new Date(certificateInfo.generated).toLocaleString();
+            certInfo.style.display = 'block';
+            
+            downloadPubBtn.style.display = 'block';
+            downloadPrivBtn.style.display = 'block';
+
+        } catch (error) {
+            publicKeyOutput.value = "Error: " + error.message;
+            privateKeyOutput.value = "Error: " + error.message;
+        }
+    }
+    
+    // --- UPDATED: DOWNLOAD KEY FUNCTION ---
+    function downloadKey(type) {
+        let content, filename;
+        
+        if (type === 'public') {
+            content = `-----BEGIN PUBLIC KEY-----\n${generatedPublicKeyB64.match(/.{1,64}/g).join('\n')}\n-----END PUBLIC KEY-----`;
+            filename = 'public_key.pem';
+        } else {
+            content = `-----BEGIN PRIVATE KEY-----\n${generatedPrivateKeyB64.match(/.{1,64}/g).join('\n')}\n-----END PRIVATE KEY-----`;
+            filename = 'private_key.pem';
+        }
+        
+        // Add certificate information as comments
+        const certInfoText = `
+# Certificate Information:
+# Client: ${certificateInfo.client}
+# Domain: ${certificateInfo.domain}
+# Valid From: ${certificateInfo.validFrom}
+# Valid To: ${certificateInfo.validTo}
+# Key Size: ${certificateInfo.keySize} bits
+# Generated: ${new Date(certificateInfo.generated).toLocaleString()}
+`;
+        
+        content = certInfoText + content;
+
+        const blob = new Blob([content], { type: 'application/x-pem-file' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+</script>
+
+</body>
+</html>

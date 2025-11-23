@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Case Converter - Smart Tools Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f7f9fc; }
+        .navbar { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .logo { font-size: 22px; font-weight: bold; color: #0066ff; text-decoration: none; }
+        .nav-links a { margin: 0 15px; text-decoration: none; color: #333; }
+        .user-info { display: flex; align-items: center; gap: 15px; font-weight: bold; }
+        .logout-btn { padding: 8px 14px; background: #0066ff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        
+        .tool-container { max-width: 900px; margin: 40px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .tool-container h1 { color: #333; text-align: center; }
+        .tool-container p { color: #666; text-align: center; margin-bottom: 30px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            min-height: 200px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .btn-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; transition: background-color 0.3s; }
+        .btn-primary { background: #0066ff; color: white; }
+        .btn-primary:hover { background: #0052cc; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-success:hover { background: #218838; }
+        .btn-info { background: #17a2b8; color: white; }
+        .btn-info:hover { background: #138496; }
+        .btn-warning { background: #ffc107; color: #212529; }
+        .btn-warning:hover { background: #e0a800; }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-danger:hover { background: #c82333; }
+        
+        .stats-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background-color: #f0f2f5;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066ff;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .output-area {
+            background-color: #f0f2f5;
+            border-color: #ddd;
+        }
+        
+        .copy-btn {
+            margin-top: 10px;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: #28a745;
+            color: white;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateX(150%);
+            transition: transform 0.3s ease-in-out;
+            z-index: 1000;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <a href="index.html" class="logo">🔧 Smart Tools Hub</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+        </div>
+        <div class="user-info">
+            <span id="username">Loading...</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- MAIN TOOL CONTENT -->
+    <div class="tool-container">
+        <h1>🔡 Text Case Converter</h1>
+        <p>Convert text between different cases with one click.</p>
+
+        <div class="form-group">
+            <label for="input-text">Input Text</label>
+            <textarea id="input-text" placeholder="Enter or paste your text here..."></textarea>
+        </div>
+        
+        <div class="btn-container">
+            <button class="btn btn-primary" onclick="convertToUppercase()">UPPERCASE</button>
+            <button class="btn btn-primary" onclick="convertToLowercase()">lowercase</button>
+            <button class="btn btn-success" onclick="convertToTitleCase()">Title Case</button>
+            <button class="btn btn-info" onclick="convertToSentenceCase()">Sentence case</button>
+            <button class="btn btn-warning" onclick="convertToAlternatingCase()">aLtErNaTiNg CaSe</button>
+            <button class="btn btn-danger" onclick="convertToInverseCase()">iNVERSE cASE</button>
+            <button class="btn btn-secondary" onclick="downloadAsFile()">Download as File</button>
+        </div>
+        
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value" id="char-count">0</div>
+                <div class="stat-label">Characters</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="word-count">0</div>
+                <div class="stat-label">Words</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="line-count">0</div>
+                <div class="stat-label">Lines</div>
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <label for="output-text">Output Text</label>
+            <textarea id="output-text" class="output-area" readonly placeholder="Converted text will appear here..."></textarea>
+            <button class="btn btn-secondary copy-btn" onclick="copyToClipboard()">Copy to Clipboard</button>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">Text copied to clipboard!</div>
+
+    <script>
+        // --- SESSION & LOGOUT ---
+        fetch("/api/auth/session").then(res => res.json()).then(data => {
+            if (data.loggedIn) { document.getElementById("username").textContent = data.email; }
+            else { window.location.href = "login.html"; }
+        }).catch(error => { console.error("Error checking session:", error); window.location.href = "login.html"; });
+        
+        function logout() { 
+            fetch("/api/auth/logout", { method: "POST" }).then(() => window.location.href = "login.html"); 
+        }
+
+        // --- TEXT CONVERSION FUNCTIONS ---
+        const inputText = document.getElementById('input-text');
+        const outputText = document.getElementById('output-text');
+        const charCount = document.getElementById('char-count');
+        const wordCount = document.getElementById('word-count');
+        const lineCount = document.getElementById('line-count');
+        
+        // Update stats when input changes
+        inputText.addEventListener('input', updateStats);
+        
+        function updateStats() {
+            const text = inputText.value;
+            
+            // Character count
+            charCount.textContent = text.length;
+            
+            // Word count
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            wordCount.textContent = words.length;
+            
+            // Line count
+            const lines = text.split('\n');
+            lineCount.textContent = lines.length;
+        }
+        
+        function convertToUppercase() {
+            const text = inputText.value;
+            outputText.value = text.toUpperCase();
+        }
+        
+        function convertToLowercase() {
+            const text = inputText.value;
+            outputText.value = text.toLowerCase();
+        }
+        
+        function convertToTitleCase() {
+            const text = inputText.value;
+            outputText.value = text.replace(/\w\S*/g, function(txt) {
+                return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+            });
+        }
+        
+        function convertToSentenceCase() {
+            const text = inputText.value;
+            outputText.value = text.replace(/(^\w|\.\s*\w)/g, function(txt) {
+                return txt.toUpperCase();
+            });
+        }
+        
+        function convertToAlternatingCase() {
+            const text = inputText.value;
+            let result = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                if (i % 2 === 0) {
+                    result += text[i].toLowerCase();
+                } else {
+                    result += text[i].toUpperCase();
+                }
+            }
+            
+            outputText.value = result;
+        }
+        
+        function convertToInverseCase() {
+            const text = inputText.value;
+            let result = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                if (text[i] === text[i].toUpperCase()) {
+                    result += text[i].toLowerCase();
+                } else {
+                    result += text[i].toUpperCase();
+                }
+            }
+            
+            outputText.value = result;
+        }
+        
+        function copyToClipboard() {
+            outputText.select();
+            document.execCommand('copy');
+            
+            // Show notification
+            const notification = document.getElementById('notification');
+            notification.classList.add('show');
+            
+            // Hide notification after 3 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        function downloadAsFile() {
+            const text = outputText.value;
+            
+            if (!text) {
+                alert('No text to download. Please convert some text first.');
+                return;
+            }
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'converted_text.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculators - Smart Tools Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f9fc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #0066ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .tool-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 12px 20px;
+            background: #e8e8e8;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .tab-btn.active {
+            background: #0066ff;
+            color: white;
+        }
+        .tool-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        .tool-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .btn-primary {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover {
+            background: #0052cc;
+        }
+        .result-box {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .result-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066ff;
+            margin: 10px 0;
+        }
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .detail-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .detail-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .detail-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #0066ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .back-btn:hover {
+            background: #0052cc;
+        }
+        .info-text {
+            color: #666;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .bmi-category {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .bmi-underweight {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        .bmi-normal {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+        .bmi-overweight {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        .bmi-obese {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+        .tip-split {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .person-tip {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+        .person-amount {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066ff;
+        }
+        .person-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .loan-chart {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .chart-label {
+            width: 100px;
+            font-weight: bold;
+        }
+        .chart-progress {
+            flex: 1;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 0 15px;
+        }
+        .chart-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        .chart-value {
+            width: 80px;
+            text-align: right;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧮 Calculators</h1>
+        
+        <div class="tool-tabs">
+            <button class="tab-btn active" onclick="switchTab('bmi')">BMI Calculator</button>
+            <button class="tab-btn" onclick="switchTab('tip')">Tip Calculator</button>
+            <button class="tab-btn" onclick="switchTab('loan')">Loan Calculator</button>
+            <button class="tab-btn" onclick="switchTab('date')">Date Calculator</button>
+            <button class="tab-btn" onclick="switchTab('percentage')">Percentage</button>
+        </div>
+
+        <!-- BMI Calculator -->
+        <div id="bmi" class="tool-content active">
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="bmiHeight">Height (cm)</label>
+                    <input type="number" id="bmiHeight" placeholder="Enter height in cm" oninput="calculateBMI()">
+                </div>
+                <div class="form-group">
+                    <label for="bmiWeight">Weight (kg)</label>
+                    <input type="number" id="bmiWeight" placeholder="Enter weight in kg" oninput="calculateBMI()">
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="calculateBMI()">Calculate BMI</button>
+            
+            <div class="result-box" id="bmiResult" style="display: none;">
+                <div>Your BMI is:</div>
+                <div class="result-value" id="bmiValue"></div>
+                <div class="bmi-category" id="bmiCategory"></div>
+                <div class="info-text" id="bmiInfo"></div>
+            </div>
+        </div>
+
+        <!-- Tip Calculator -->
+        <div id="tip" class="tool-content">
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="billAmount">Bill Amount ($)</label>
+                    <input type="number" id="billAmount" placeholder="Enter bill amount" oninput="calculateTip()">
+                </div>
+                <div class="form-group">
+                    <label for="tipPercentage">Tip Percentage (%)</label>
+                    <input type="number" id="tipPercentage" value="15" oninput="calculateTip()">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="numPeople">Number of People</label>
+                <input type="number" id="numPeople" value="1" min="1" oninput="calculateTip()">
+            </div>
+            
+            <button class="btn-primary" onclick="calculateTip()">Calculate Tip</button>
+            
+            <div class="result-box" id="tipResult" style="display: none;">
+                <div class="result-details">
+                    <div class="detail-card">
+                        <div class="detail-value" id="tipAmount">$0.00</div>
+                        <div class="detail-label">Tip Amount</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-value" id="totalAmount">$0.00</div>
+                        <div class="detail-label">Total Amount</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-value" id="perPerson">$0.00</div>
+                        <div class="detail-label">Per Person</div>
+                    </div>
+                </div>
+                
+                <div class="tip-split" id="tipSplit"></div>
+            </div>
+        </div>
+
+        <!-- Loan Calculator -->
+        <div id="loan" class="tool-content">
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="loanAmount">Loan Amount ($)</label>
+                    <input type="number" id="loanAmount" placeholder="Enter loan amount" oninput="calculateLoan()">
+                </div>
+                <div class="form-group">
+                    <label for="interestRate">Interest Rate (%)</label>
+                    <input type="number" id="interestRate" step="0.1" placeholder="Enter interest rate" oninput="calculateLoan()">
+                </div>
+            </div>
+            
+            <div class="input-row">
+                <div class="form-group">
+                    <label for="loanTerm">Loan Term (years)</label>
+                    <input type="number" id="loanTerm" placeholder="Enter loan term" oninput="calculateLoan()">
+                </div>
+                <div class="form-group">
+                    <label for="loanType">Loan Type</label>
+                    <select id="loanType" onchange="calculateLoan()">
+                        <option value="fixed">Fixed Rate</option>
+                        <option value="variable">Variable Rate</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="calculateLoan()">Calculate Loan</button>
+            
+            <div class="result-box" id="loanResult" style="display: none;">
+                <div class="result-details">
+                    <div class="detail-card">
+                        <div class="detail-value" id="monthlyPayment">$0.00</div>
+                        <div class="detail-label">Monthly Payment</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-value" id="totalInterest">$0.00</div>
+                        <div class="detail-label">Total Interest</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-value" id="totalPayment">$0.00</div>
+                        <div class="detail-label">Total Payment</div>
+                    </div>
+                </div>
+                
+                <div class="loan-chart">
+                    <h3>Payment Breakdown</h3>
+                    <div class="chart-bar">
+                        <div class="chart-label">Principal</div>
+                        <div class="chart-progress">
+                            <div class="chart-fill" id="principalBar" style="width: 0%; background: #4caf50;"></div>
+                        </div>
+                        <div class="chart-value" id="principalPercent">0%</div>
+                    </div>
+                    <div class="chart-bar">
+                        <div class="chart-label">Interest</div>
+                        <div class="chart-progress">
+                            <div class="chart-fill" id="interestBar" style="width: 0%; background: #ff9800;"></div>
+                        </div>
+                        <div class="chart-value" id="interestPercent">0%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Date Calculator -->
+        <div id="date" class="tool-content">
+            <div class="form-group">
+                <label for="dateCalculation">Calculation Type</label>
+                <select id="dateCalculation" onchange="toggleDateInputs()">
+                    <option value="add">Add/Subtract Days</option>
+                    <option value="difference">Date Difference</option>
+                </select>
+            </div>
+            
+            <div id="addDateInputs">
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" onchange="calculateDate()">
+                </div>
+                
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="addDays">Days</label>
+                        <input type="number" id="addDays" value="0" oninput="calculateDate()">
+                    </div>
+                    <div class="form-group">
+                        <label for="addMonths">Months</label>
+                        <input type="number" id="addMonths" value="0" oninput="calculateDate()">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="addYears">Years</label>
+                    <input type="number" id="addYears" value="0" oninput="calculateDate()">
+                </div>
+            </div>
+            
+            <div id="differenceDateInputs" style="display: none;">
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="date1">First Date</label>
+                        <input type="date" id="date1" onchange="calculateDateDifference()">
+                    </div>
+                    <div class="form-group">
+                        <label for="date2">Second Date</label>
+                        <input type="date" id="date2" onchange="calculateDateDifference()">
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="calculateDate()">Calculate</button>
+            
+            <div class="result-box" id="dateResult" style="display: none;">
+                <div class="result-value" id="dateValue"></div>
+                <div class="info-text" id="dateInfo"></div>
+            </div>
+        </div>
+
+        <!-- Percentage Calculator -->
+        <div id="percentage" class="tool-content">
+            <div class="form-group">
+                <label for="percentCalculation">Calculation Type</label>
+                <select id="percentCalculation" onchange="togglePercentInputs()">
+                    <option value="whatIs">What is X% of Y?</option>
+                    <option value="xIsY">X is what % of Y?</option>
+                    <option value="increase">Increase/Decrease by %</option>
+                </select>
+            </div>
+            
+            <div id="whatIsInputs">
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="percentValue">Percentage (%)</label>
+                        <input type="number" id="percentValue" placeholder="Enter percentage" oninput="calculatePercentage()">
+                    </div>
+                    <div class="form-group">
+                        <label for="percentOf">Of Value</label>
+                        <input type="number" id="percentOf" placeholder="Enter value" oninput="calculatePercentage()">
+                    </div>
+                </div>
+            </div>
+            
+            <div id="xIsYInputs" style="display: none;">
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="isValue">Value</label>
+                        <input type="number" id="isValue" placeholder="Enter value" oninput="calculatePercentage()">
+                    </div>
+                    <div class="form-group">
+                        <label for="ofValue">Of Value</label>
+                        <input type="number" id="ofValue" placeholder="Enter value" oninput="calculatePercentage()">
+                    </div>
+                </div>
+            </div>
+            
+            <div id="increaseInputs" style="display: none;">
+                <div class="input-row">
+                    <div class="form-group">
+                        <label for="originalValue">Original Value</label>
+                        <input type="number" id="originalValue" placeholder="Enter original value" oninput="calculatePercentage()">
+                    </div>
+                    <div class="form-group">
+                        <label for="changePercent">Change (%)</label>
+                        <input type="number" id="changePercent" placeholder="Enter percentage" oninput="calculatePercentage()">
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="calculatePercentage()">Calculate</button>
+            
+            <div class="result-box" id="percentResult" style="display: none;">
+                <div class="result-value" id="percentValue"></div>
+                <div class="result-details" id="percentDetails"></div>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">← Back to Home</a>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tool-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // BMI Calculator
+        function calculateBMI() {
+            const height = parseFloat(document.getElementById('bmiHeight').value);
+            const weight = parseFloat(document.getElementById('bmiWeight').value);
+            
+            if (!height || !weight) return;
+            
+            const heightInMeters = height / 100;
+            const bmi = weight / (heightInMeters * heightInMeters);
+            
+            let category, categoryClass, info;
+            
+            if (bmi < 18.5) {
+                category = 'Underweight';
+                categoryClass = 'bmi-underweight';
+                info = 'You may need to gain weight. Consult a healthcare provider.';
+            } else if (bmi < 25) {
+                category = 'Normal Weight';
+                categoryClass = 'bmi-normal';
+                info = 'You have a healthy weight. Keep it up!';
+            } else if (bmi < 30) {
+                category = 'Overweight';
+                categoryClass = 'bmi-overweight';
+                info = 'You may need to lose some weight. Consider a healthy diet and exercise.';
+            } else {
+                category = 'Obese';
+                categoryClass = 'bmi-obese';
+                info = 'It\'s important to consult a healthcare provider for weight management.';
+            }
+            
+            document.getElementById('bmiValue').textContent = bmi.toFixed(1);
+            document.getElementById('bmiCategory').textContent = category;
+            document.getElementById('bmiCategory').className = 'bmi-category ' + categoryClass;
+            document.getElementById('bmiInfo').textContent = info;
+            document.getElementById('bmiResult').style.display = 'block';
+        }
+
+        // Tip Calculator
+        function calculateTip() {
+            const billAmount = parseFloat(document.getElementById('billAmount').value);
+            const tipPercentage = parseFloat(document.getElementById('tipPercentage').value);
+            const numPeople = parseInt(document.getElementById('numPeople').value);
+            
+            if (!billAmount || !tipPercentage || !numPeople) return;
+            
+            const tipAmount = billAmount * (tipPercentage / 100);
+            const totalAmount = billAmount + tipAmount;
+            const perPerson = totalAmount / numPeople;
+            
+            document.getElementById('tipAmount').textContent = '$' + tipAmount.toFixed(2);
+            document.getElementById('totalAmount').textContent = '$' + totalAmount.toFixed(2);
+            document.getElementById('perPerson').textContent = '$' + perPerson.toFixed(2);
+            
+            // Generate split details
+            const splitDiv = document.getElementById('tipSplit');
+            splitDiv.innerHTML = '';
+            
+            for (let i = 1; i <= numPeople; i++) {
+                const personDiv = document.createElement('div');
+                personDiv.className = 'person-tip';
+                personDiv.innerHTML = `
+                    <div class="person-amount">$${perPerson.toFixed(2)}</div>
+                    <div class="person-label">Person ${i}</div>
+                `;
+                splitDiv.appendChild(personDiv);
+            }
+            
+            document.getElementById('tipResult').style.display = 'block';
+        }
+
+        // Loan Calculator
+        function calculateLoan() {
+            const principal = parseFloat(document.getElementById('loanAmount').value);
+            const annualRate = parseFloat(document.getElementById('interestRate').value);
+            const years = parseFloat(document.getElementById('loanTerm').value);
+            
+            if (!principal || !annualRate || !years) return;
+            
+            const monthlyRate = annualRate / 100 / 12;
+            const numPayments = years * 12;
+            
+            const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                                  (Math.pow(1 + monthlyRate, numPayments) - 1);
+            
+            const totalPayment = monthlyPayment * numPayments;
+            const totalInterest = totalPayment - principal;
+            
+            document.getElementById('monthlyPayment').textContent = '$' + monthlyPayment.toFixed(2);
+            document.getElementById('totalInterest').textContent = '$' + totalInterest.toFixed(2);
+            document.getElementById('totalPayment').textContent = '$' + totalPayment.toFixed(2);
+            
+            // Update chart
+            const principalPercent = (principal / totalPayment) * 100;
+            const interestPercent = (totalInterest / totalPayment) * 100;
+            
+            document.getElementById('principalBar').style.width = principalPercent + '%';
+            document.getElementById('principalPercent').textContent = principalPercent.toFixed(1) + '%';
+            document.getElementById('interestBar').style.width = interestPercent + '%';
+            document.getElementById('interestPercent').textContent = interestPercent.toFixed(1) + '%';
+            
+            document.getElementById('loanResult').style.display = 'block';
+        }
+
+        // Date Calculator
+        function toggleDateInputs() {
+            const type = document.getElementById('dateCalculation').value;
+            document.getElementById('addDateInputs').style.display = type === 'add' ? 'block' : 'none';
+            document.getElementById('differenceDateInputs').style.display = type === 'difference' ? 'block' : 'none';
+        }
+
+        function calculateDate() {
+            const type = document.getElementById('dateCalculation').value;
+            
+            if (type === 'add') {
+                const startDate = new Date(document.getElementById('startDate').value);
+                const days = parseInt(document.getElementById('addDays').value) || 0;
+                const months = parseInt(document.getElementById('addMonths').value) || 0;
+                const years = parseInt(document.getElementById('addYears').value) || 0;
+                
+                if (!startDate) return;
+                
+                const result = new Date(startDate);
+                result.setDate(result.getDate() + days);
+                result.setMonth(result.getMonth() + months);
+                result.setFullYear(result.getFullYear() + years);
+                
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('dateValue').textContent = result.toLocaleDateString('en-US', options);
+                document.getElementById('dateInfo').textContent = `Added ${days} days, ${months} months, and ${years} years`;
+            }
+            
+            document.getElementById('dateResult').style.display = 'block';
+        }
+
+        function calculateDateDifference() {
+            const date1 = new Date(document.getElementById('date1').value);
+            const date2 = new Date(document.getElementById('date2').value);
+            
+            if (!date1 || !date2) return;
+            
+            const diffTime = Math.abs(date2 - date1);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const diffWeeks = Math.floor(diffDays / 7);
+            const diffMonths = Math.floor(diffDays / 30);
+            const diffYears = Math.floor(diffDays / 365);
+            
+            document.getElementById('dateValue').textContent = `${diffDays} days`;
+            document.getElementById('dateInfo').textContent = `Approximately ${diffWeeks} weeks, ${diffMonths} months, or ${diffYears} years`;
+            document.getElementById('dateResult').style.display = 'block';
+        }
+
+        // Percentage Calculator
+        function togglePercentInputs() {
+            const type = document.getElementById('percentCalculation').value;
+            
+            document.getElementById('whatIsInputs').style.display = type === 'whatIs' ? 'block' : 'none';
+            document.getElementById('xIsYInputs').style.display = type === 'xIsY' ? 'block' : 'none';
+            document.getElementById('increaseInputs').style.display = type === 'increase' ? 'block' : 'none';
+        }
+
+        function calculatePercentage() {
+            const type = document.getElementById('percentCalculation').value;
+            let result, details = '';
+            
+            if (type === 'whatIs') {
+                const percent = parseFloat(document.getElementById('percentValue').value);
+                const of = parseFloat(document.getElementById('percentOf').value);
+                
+                if (!percent || !of) return;
+                
+                result = (percent / 100) * of;
+                document.getElementById('percentValue').textContent = `${percent}% of ${of} = ${result.toFixed(2)}`;
+                
+            } else if (type === 'xIsY') {
+                const is = parseFloat(document.getElementById('isValue').value);
+                const of = parseFloat(document.getElementById('ofValue').value);
+                
+                if (!is || !of) return;
+                
+                result = (is / of) * 100;
+                document.getElementById('percentValue').textContent = `${is} is ${result.toFixed(2)}% of ${of}`;
+                
+            } else if (type === 'increase') {
+                const original = parseFloat(document.getElementById('originalValue').value);
+                const change = parseFloat(document.getElementById('changePercent').value);
+                
+                if (!original || !change) return;
+                
+                const increased = original + (original * change / 100);
+                const decreased = original - (original * change / 100);
+                
+                document.getElementById('percentValue').textContent = `Original: ${original}`;
+                details = `
+                    <div class="detail-card">
+                        <div class="detail-value">${increased.toFixed(2)}</div>
+                        <div class="detail-label">After +${change}%</div>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-value">${decreased.toFixed(2)}</div>
+                        <div class="detail-label">After -${change}%</div>
+                    </div>
+                `;
+                document.getElementById('percentDetails').innerHTML = details;
+            }
+            
+            document.getElementById('percentResult').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

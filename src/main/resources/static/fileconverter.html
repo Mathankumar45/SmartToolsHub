@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced File Converter - SmartToolsHub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Enhanced styles */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+            padding: 20px; 
+            color: #333;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: auto; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+        }
+        h2 { 
+            text-align: center; 
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab.active {
+            border-bottom: 2px solid #4a90e2;
+            color: #4a90e2;
+            font-weight: bold;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .drop-zone {
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #4a90e2;
+            background-color: rgba(74, 144, 226, 0.05);
+        }
+        .drop-zone i {
+            font-size: 48px;
+            color: #4a90e2;
+            margin-bottom: 15px;
+        }
+        .file-list {
+            margin: 20px 0;
+        }
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .file-name {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .file-options {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .format-options {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .option-group {
+            margin-bottom: 15px;
+        }
+        .option-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        select, input[type=file], input[type=text], input[type=number] { 
+            width: 100%; 
+            padding: 12px; 
+            margin-top: 5px;
+            border-radius: 8px; 
+            border: 1px solid #ccc; 
+            box-sizing: border-box;
+        }
+        button { 
+            background: #4a90e2; 
+            color: white; 
+            cursor: pointer; 
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        button:hover { 
+            background: #357ab8; 
+        }
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+        .progress-bar {
+            height: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background-color: #4a90e2;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        .cloud-services {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            justify-content: center;
+        }
+        .cloud-service {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #eee;
+            transition: all 0.3s;
+        }
+        .cloud-service:hover {
+            background-color: #f9f9f9;
+            transform: translateY(-2px);
+        }
+        .cloud-service i {
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+        #message { 
+            text-align:center; 
+            margin-top:20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+    
+    <div class="container">
+        <h2>📁 Advanced File Converter</h2>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="single">Single File</div>
+            <div class="tab" data-tab="batch">Batch Convert</div>
+            <div class="tab" data-tab="cloud">Cloud Import</div>
+            <div class="tab" data-tab="history">History</div>
+        </div>
+        
+        <!-- Single File Tab -->
+        <div class="tab-content active" id="single">
+            <div class="drop-zone" id="dropZone">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag and drop your file here or click to browse</p>
+                <input type="file" id="inputFile" hidden>
+            </div>
+            
+            <div id="fileInfo" style="display:none;">
+                <h3>Selected File:</h3>
+                <p id="fileName"></p>
+                <p id="fileSize"></p>
+            </div>
+            
+            <div id="formatBox" style="display:none;">
+                <label>Convert To:</label>
+                <select id="format" onchange="showFormatOptions(this.value)"></select>
+            </div>
+            
+            <div id="formatOptions" class="format-options"></div>
+            
+            <button onclick="convertFile()" id="convertBtn" style="display:none;">Convert</button>
+            
+            <div class="progress-container" id="progressContainer">
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+                <p id="progressText">Processing...</p>
+            </div>
+        </div>
+        
+        <!-- Batch Convert Tab -->
+        <div class="tab-content" id="batch">
+            <div class="drop-zone" id="batchDropZone">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <p>Drag and drop multiple files here or click to browse</p>
+                <input type="file" id="batchInputFiles" multiple hidden>
+            </div>
+            
+            <div class="file-list" id="batchFileList"></div>
+            
+            <div id="batchFormatBox" style="display:none;">
+                <label>Convert All To:</label>
+                <select id="batchFormat"></select>
+            </div>
+            
+            <button onclick="convertBatch()" id="convertBatchBtn" style="display:none;">Convert All Files</button>
+        </div>
+        
+        <!-- Cloud Import Tab -->
+        <div class="tab-content" id="cloud">
+            <h3>Import from Cloud Storage</h3>
+            <div class="cloud-services">
+                <div class="cloud-service" data-service="google-drive">
+                    <i class="fab fa-google-drive" style="color: #4285F4;"></i>
+                    <span>Google Drive</span>
+                </div>
+                <div class="cloud-service" data-service="dropbox">
+                    <i class="fab fa-dropbox" style="color: #0061FF;"></i>
+                    <span>Dropbox</span>
+                </div>
+                <div class="cloud-service" data-service="onedrive">
+                    <i class="fab fa-microsoft" style="color: #0078D4;"></i>
+                    <span>OneDrive</span>
+                </div>
+            </div>
+            
+            <div id="cloudFileInfo" style="display:none;">
+                <h3>Selected File:</h3>
+                <p id="cloudFileName"></p>
+                <p id="cloudFileSize"></p>
+            </div>
+            
+            <div id="cloudFormatBox" style="display:none;">
+                <label>Convert To:</label>
+                <select id="cloudFormat"></select>
+            </div>
+            
+            <button onclick="convertCloudFile()" id="convertCloudBtn" style="display:none;">Convert</button>
+        </div>
+        
+        <!-- History Tab -->
+        <div class="tab-content" id="history">
+            <h3>Conversion History</h3>
+            <div id="historyList">
+                <!-- History items will be loaded here -->
+            </div>
+            <button onclick="clearHistory()">Clear History</button>
+        </div>
+        
+        <p id="message"></p>
+        
+        <p style="text-align:center; margin-top: 20px;">
+            <a href="index.html">⬅ Back to Dashboard</a>
+        </p>
+    </div>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+                
+                // Load history when history tab is clicked
+                if (tab.dataset.tab === 'history') {
+                    loadHistory();
+                }
+            });
+        });
+        
+        // Theme toggle
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            document.body.classList.toggle('dark-theme');
+            const icon = this.querySelector('i');
+            if (document.body.classList.contains('dark-theme')) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            } else {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        });
+        
+        // Single file upload
+        const dropZone = document.getElementById('dropZone');
+        const inputFile = document.getElementById('inputFile');
+        
+        dropZone.addEventListener('click', () => inputFile.click());
+        
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                inputFile.files = e.dataTransfer.files;
+                detectFormat();
+            }
+        });
+        
+        inputFile.addEventListener('change', detectFormat);
+        
+        // Batch file upload
+        const batchDropZone = document.getElementById('batchDropZone');
+        const batchInputFiles = document.getElementById('batchInputFiles');
+        
+        batchDropZone.addEventListener('click', () => batchInputFiles.click());
+        
+        batchDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            batchDropZone.classList.add('dragover');
+        });
+        
+        batchDropZone.addEventListener('dragleave', () => {
+            batchDropZone.classList.remove('dragover');
+        });
+        
+        batchDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            batchDropZone.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                batchInputFiles.files = e.dataTransfer.files;
+                updateBatchFileList();
+            }
+        });
+        
+        batchInputFiles.addEventListener('change', updateBatchFileList);
+        
+        // Cloud service selection
+        document.querySelectorAll('.cloud-service').forEach(service => {
+            service.addEventListener('click', () => {
+                // In a real implementation, this would initiate OAuth flow for the selected service
+                // For demo purposes, we'll just show a mock file selection
+                const serviceType = service.dataset.service;
+                showMessage(`Connecting to ${serviceType}...`, 'info');
+                
+                // Simulate file selection after a delay
+                setTimeout(() => {
+                    document.getElementById('cloudFileName').textContent = `sample-document-from-${serviceType}.pdf`;
+                    document.getElementById('cloudFileSize').textContent = '2.5 MB';
+                    document.getElementById('cloudFileInfo').style.display = 'block';
+                    
+                    // Show format options
+                    const formatSelect = document.getElementById('cloudFormat');
+                    formatSelect.innerHTML = "";
+                    
+                    const options = ["docx", "jpg", "png", "txt"];
+                    options.forEach(o => {
+                        let op = document.createElement("option");
+                        op.value = o;
+                        op.textContent = o.toUpperCase();
+                        formatSelect.appendChild(op);
+                    });
+                    
+                    document.getElementById('cloudFormatBox').style.display = 'block';
+                    document.getElementById('convertCloudBtn').style.display = 'block';
+                    
+                    showMessage(`File imported from ${serviceType}`, 'success');
+                }, 1500);
+            });
+        });
+        
+        function detectFormat() {
+            const file = document.getElementById("inputFile").files[0];
+            if (!file) return;
+
+            // Display file info
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            document.getElementById('fileInfo').style.display = 'block';
+
+            const ext = file.name.split('.').pop().toLowerCase();
+            const formatSelect = document.getElementById("format");
+            const box = document.getElementById("formatBox");
+            const btn = document.getElementById("convertBtn");
+
+            formatSelect.innerHTML = "";
+            box.style.display = "block";
+            btn.style.display = "block";
+
+            let options = [];
+
+            if (ext === "pdf") options = ["docx", "jpg", "png", "txt"];
+            else if (ext === "docx") options = ["pdf", "txt"];
+            else if (["jpg", "jpeg", "png"].includes(ext)) options = ["pdf", "docx", "txt"];
+            else if (ext === "txt") options = ["pdf"];
+            else if (["xls", "xlsx"].includes(ext)) options = ["csv", "pdf"];
+            else if (ext === "csv") options = ["xls", "xlsx", "pdf"];
+            else if (["ppt", "pptx"].includes(ext)) options = ["pdf", "jpg"];
+            else options = [];
+
+            options.forEach(o => {
+                let op = document.createElement("option");
+                op.value = o;
+                op.textContent = o.toUpperCase();
+                formatSelect.appendChild(op);
+            });
+            
+            // Show format-specific options
+            showFormatOptions(formatSelect.value);
+        }
+        
+        function showFormatOptions(format) {
+            const optionsContainer = document.getElementById("formatOptions");
+            optionsContainer.innerHTML = "";
+            
+            if (format === "pdf") {
+                optionsContainer.innerHTML = `
+                    <div class="option-group">
+                        <label>PDF Quality:</label>
+                        <select id="pdfQuality">
+                            <option value="low">Low (Smaller file size)</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High (Better quality)</option>
+                        </select>
+                    </div>
+                    <div class="option-group">
+                        <label><input type="checkbox" id="compressPdf"> Compress PDF</label>
+                    </div>
+                    <div class="option-group">
+                        <label><input type="checkbox" id="protectPdf"> Password Protect</label>
+                        <input type="text" id="pdfPassword" placeholder="Enter password" style="display:none; margin-top:5px;">
+                    </div>
+                `;
+                
+                document.getElementById('protectPdf').addEventListener('change', function() {
+                    document.getElementById('pdfPassword').style.display = this.checked ? 'block' : 'none';
+                });
+            } else if (format === "jpg" || format === "png") {
+                optionsContainer.innerHTML = `
+                    <div class="option-group">
+                        <label>Image Quality: <span id="qualityValue">80%</span></label>
+                        <input type="range" id="imageQuality" min="10" max="100" value="80">
+                    </div>
+                    <div class="option-group">
+                        <label>Resize (pixels):</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="number" id="width" placeholder="Width"> × 
+                            <input type="number" id="height" placeholder="Height">
+                        </div>
+                    </div>
+                    <div class="option-group">
+                        <label><input type="checkbox" id="maintainAspect" checked> Maintain aspect ratio</label>
+                    </div>
+                `;
+                
+                document.getElementById('imageQuality').addEventListener('input', function() {
+                    document.getElementById('qualityValue').textContent = this.value + '%';
+                });
+                
+                document.getElementById('maintainAspect').addEventListener('change', function() {
+                    document.getElementById('height').disabled = this.checked;
+                });
+            } else if (format === "docx") {
+                optionsContainer.innerHTML = `
+                    <div class="option-group">
+                        <label><input type="checkbox" id="preserveFormatting" checked> Preserve original formatting</label>
+                    </div>
+                    <div class="option-group">
+                        <label>Page Size:</label>
+                        <select id="pageSize">
+                            <option value="A4">A4</option>
+                            <option value="Letter">Letter</option>
+                            <option value="Legal">Legal</option>
+                        </select>
+                    </div>
+                `;
+            }
+        }
+        
+        function updateBatchFileList() {
+            const files = document.getElementById("batchInputFiles").files;
+            const fileList = document.getElementById("batchFileList");
+            const formatBox = document.getElementById("batchFormatBox");
+            const convertBtn = document.getElementById("convertBatchBtn");
+            
+            fileList.innerHTML = "";
+            
+            if (files.length === 0) {
+                formatBox.style.display = "none";
+                convertBtn.style.display = "none";
+                return;
+            }
+            
+            // Determine common file types and available conversions
+            const fileTypes = {};
+            for (let i = 0; i < files.length; i++) {
+                const ext = files[i].name.split('.').pop().toLowerCase();
+                fileTypes[ext] = (fileTypes[ext] || 0) + 1;
+                
+                const fileItem = document.createElement("div");
+                fileItem.className = "file-item";
+                
+                const fileName = document.createElement("div");
+                fileName.className = "file-name";
+                fileName.textContent = files[i].name;
+                
+                const fileOptions = document.createElement("div");
+                fileOptions.className = "file-options";
+                
+                const targetFormat = document.createElement("select");
+                targetFormat.className = "target-format";
+                
+                // Add options based on file type
+                let options = [];
+                if (ext === "pdf") options = ["docx", "jpg", "png", "txt"];
+                else if (ext === "docx") options = ["pdf", "txt"];
+                else if (["jpg", "jpeg", "png"].includes(ext)) options = ["pdf", "docx", "txt"];
+                else if (ext === "txt") options = ["pdf"];
+                else options = [];
+                
+                options.forEach(o => {
+                    let op = document.createElement("option");
+                    op.value = o;
+                    op.textContent = o.toUpperCase();
+                    targetFormat.appendChild(op);
+                });
+                
+                fileOptions.appendChild(targetFormat);
+                
+                const removeBtn = document.createElement("button");
+                removeBtn.textContent = "×";
+                removeBtn.addEventListener("click", function() {
+                    fileItem.remove();
+                    // Update files list
+                    updateBatchFileList();
+                });
+                
+                fileOptions.appendChild(removeBtn);
+                fileItem.appendChild(fileName);
+                fileItem.appendChild(fileOptions);
+                fileList.appendChild(fileItem);
+            }
+            
+            // Show common format options
+            const formatSelect = document.getElementById("batchFormat");
+            formatSelect.innerHTML = "";
+            
+            // Find common conversion options for all file types
+            const commonOptions = findCommonConversionOptions(Object.keys(fileTypes));
+            
+            commonOptions.forEach(o => {
+                let op = document.createElement("option");
+                op.value = o;
+                op.textContent = o.toUpperCase();
+                formatSelect.appendChild(op);
+            });
+            
+            formatBox.style.display = "block";
+            convertBtn.style.display = "block";
+        }
+        
+        function findCommonConversionOptions(fileTypes) {
+            // This is a simplified version - in a real app, you'd have a more comprehensive mapping
+            const conversionMap = {
+                "pdf": ["docx", "jpg", "png", "txt"],
+                "docx": ["pdf", "txt"],
+                "jpg": ["pdf", "docx", "txt"],
+                "jpeg": ["pdf", "docx", "txt"],
+                "png": ["pdf", "docx", "txt"],
+                "txt": ["pdf"]
+            };
+            
+            if (fileTypes.length === 0) return [];
+            
+            // Start with options for the first file type
+            let commonOptions = [...(conversionMap[fileTypes[0]] || [])];
+            
+            // Find intersection with options for other file types
+            for (let i = 1; i < fileTypes.length; i++) {
+                const options = conversionMap[fileTypes[i]] || [];
+                commonOptions = commonOptions.filter(option => options.includes(option));
+            }
+            
+            return commonOptions;
+        }
+        
+        async function convertFile() {
+            const file = document.getElementById("inputFile").files[0];
+            const format = document.getElementById("format").value;
+            const msg = document.getElementById("message");
+            const progressContainer = document.getElementById("progressContainer");
+            const progressBar = document.getElementById("progressBar");
+            const progressText = document.getElementById("progressText");
+            
+            // Collect format-specific options
+            const options = {};
+            if (format === "pdf") {
+                options.quality = document.getElementById("pdfQuality").value;
+                options.compress = document.getElementById("compressPdf").checked;
+                options.password = document.getElementById("protectPdf").checked ? 
+                                  document.getElementById("pdfPassword").value : null;
+            } else if (format === "jpg" || format === "png") {
+                options.quality = document.getElementById("imageQuality").value;
+                options.width = document.getElementById("width").value;
+                options.height = document.getElementById("height").value;
+                options.maintainAspect = document.getElementById("maintainAspect").checked;
+            } else if (format === "docx") {
+                options.preserveFormatting = document.getElementById("preserveFormatting").checked;
+                options.pageSize = document.getElementById("pageSize").value;
+            }
+            
+            let form = new FormData();
+            form.append("file", file);
+            form.append("format", format);
+            form.append("options", JSON.stringify(options));
+
+            msg.innerText = "";
+            progressContainer.style.display = "block";
+            progressText.innerText = "Preparing file...";
+            progressBar.style.width = "10%";
+
+            try {
+                // Simulate progress updates
+                const progressInterval = setInterval(() => {
+                    const currentWidth = parseInt(progressBar.style.width);
+                    if (currentWidth < 90) {
+                        progressBar.style.width = (currentWidth + 10) + "%";
+                        progressText.innerText = "Converting...";
+                    }
+                }, 500);
+
+                const res = await fetch("/api/convert", { method: "POST", body: form });
+
+                clearInterval(progressInterval);
+                progressBar.style.width = "100%";
+                progressText.innerText = "Finalizing...";
+
+                if (!res.ok) {
+                    throw new Error("Conversion failed");
+                }
+
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+
+                a.href = url;
+                a.download = "converted." + format;
+                a.click();
+
+                // Save to history
+                saveToHistory(file.name, format);
+                
+                msg.innerText = "✔ File Downloaded!";
+                msg.className = "success";
+                
+                // Reset progress after a delay
+                setTimeout(() => {
+                    progressContainer.style.display = "none";
+                    progressBar.style.width = "0%";
+                }, 2000);
+            } catch (error) {
+                console.error("Conversion error:", error);
+                msg.innerText = "✗ Conversion Failed!";
+                msg.className = "error";
+                
+                // Reset progress after a delay
+                setTimeout(() => {
+                    progressContainer.style.display = "none";
+                    progressBar.style.width = "0%";
+                }, 2000);
+            }
+        }
+        
+        async function convertBatch() {
+            const files = document.getElementById("batchInputFiles").files;
+            const format = document.getElementById("batchFormat").value;
+            const msg = document.getElementById("message");
+            const progressContainer = document.getElementById("progressContainer");
+            const progressBar = document.getElementById("progressBar");
+            const progressText = document.getElementById("progressText");
+            
+            if (files.length === 0) {
+                msg.innerText = "Please select files to convert";
+                msg.className = "error";
+                return;
+            }
+            
+            msg.innerText = "";
+            progressContainer.style.display = "block";
+            progressText.innerText = `Preparing ${files.length} files...`;
+            progressBar.style.width = "10%";
+            
+            try {
+                // Process files one by one
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const targetFormat = document.querySelector(`.file-item:nth-child(${i+1}) .target-format`).value || format;
+                    
+                    progressText.innerText = `Converting ${file.name} (${i+1}/${files.length})...`;
+                    const progress = 10 + (80 * (i / files.length));
+                    progressBar.style.width = progress + "%";
+                    
+                    let form = new FormData();
+                    form.append("file", file);
+                    form.append("format", targetFormat);
+                    
+                    const res = await fetch("/api/convert", { method: "POST", body: form });
+                    
+                    if (!res.ok) {
+                        throw new Error(`Failed to convert ${file.name}`);
+                    }
+                    
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    
+                    a.href = url;
+                    a.download = file.name.replace(/\.[^/.]+$/, "") + "-converted." + targetFormat;
+                    a.click();
+                    
+                    // Save to history
+                    saveToHistory(file.name, targetFormat);
+                }
+                
+                progressBar.style.width = "100%";
+                progressText.innerText = "All files converted successfully!";
+                
+                msg.innerText = `✔ ${files.length} Files Converted and Downloaded!`;
+                msg.className = "success";
+                
+                // Reset progress after a delay
+                setTimeout(() => {
+                    progressContainer.style.display = "none";
+                    progressBar.style.width = "0%";
+                }, 2000);
+            } catch (error) {
+                console.error("Batch conversion error:", error);
+                msg.innerText = "✗ Batch Conversion Failed!";
+                msg.className = "error";
+                
+                // Reset progress after a delay
+                setTimeout(() => {
+                    progressContainer.style.display = "none";
+                    progressBar.style.width = "0%";
+                }, 2000);
+            }
+        }
+        
+        function convertCloudFile() {
+            // In a real implementation, this would handle the actual cloud file conversion
+            // For demo purposes, we'll just simulate it
+            const fileName = document.getElementById('cloudFileName').textContent;
+            const format = document.getElementById('cloudFormat').value;
+            const msg = document.getElementById("message");
+            const progressContainer = document.getElementById("progressContainer");
+            const progressBar = document.getElementById("progressBar");
+            const progressText = document.getElementById("progressText");
+            
+            msg.innerText = "";
+            progressContainer.style.display = "block";
+            progressText.innerText = "Downloading from cloud...";
+            progressBar.style.width = "10%";
+            
+            // Simulate progress
+            setTimeout(() => {
+                progressText.innerText = "Converting...";
+                progressBar.style.width = "50%";
+            }, 1000);
+            
+            setTimeout(() => {
+                progressText.innerText = "Finalizing...";
+                progressBar.style.width = "90%";
+            }, 2000);
+            
+            setTimeout(() => {
+                progressBar.style.width = "100%";
+                progressText.innerText = "Complete!";
+                
+                // Simulate download
+                const a = document.createElement("a");
+                a.href = "#";
+                a.download = fileName.replace(/\.[^/.]+$/, "") + "-converted." + format;
+                a.click();
+                
+                // Save to history
+                saveToHistory(fileName, format);
+                
+                msg.innerText = "✔ Cloud File Converted and Downloaded!";
+                msg.className = "success";
+                
+                // Reset progress after a delay
+                setTimeout(() => {
+                    progressContainer.style.display = "none";
+                    progressBar.style.width = "0%";
+                }, 2000);
+            }, 3000);
+        }
+        
+        function saveToHistory(originalName, targetFormat) {
+            // Get existing history or create new array
+            let history = JSON.parse(localStorage.getItem('conversionHistory') || '[]');
+            
+            // Add new conversion to history
+            history.push({
+                originalName,
+                targetFormat,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Keep only last 20 conversions
+            if (history.length > 20) {
+                history = history.slice(-20);
+            }
+            
+            // Save back to localStorage
+            localStorage.setItem('conversionHistory', JSON.stringify(history));
+        }
+        
+        function loadHistory() {
+            const historyList = document.getElementById('historyList');
+            const history = JSON.parse(localStorage.getItem('conversionHistory') || '[]');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p>No conversion history yet.</p>';
+                return;
+            }
+            
+            historyList.innerHTML = '';
+            
+            // Sort by timestamp (newest first)
+            history.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            history.forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = 'history-item';
+                
+                const date = new Date(item.timestamp);
+                const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                
+                historyItem.innerHTML = `
+                    <div>
+                        <strong>${item.originalName}</strong> → ${item.targetFormat.toUpperCase()}
+                        <br>
+                        <small>${formattedDate}</small>
+                    </div>
+                    <button onclick="reconvertFromHistory('${item.originalName}', '${item.targetFormat}')">Reconvert</button>
+                `;
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        function reconvertFromHistory(originalName, targetFormat) {
+            // In a real implementation, this would allow the user to select a new file
+            // For demo purposes, we'll just show a message
+            showMessage(`Reconverting ${originalName} to ${targetFormat.toUpperCase()}...`, 'info');
+            
+            // Switch to single file tab
+            document.querySelector('[data-tab="single"]').click();
+        }
+        
+        function clearHistory() {
+            if (confirm('Are you sure you want to clear your conversion history?')) {
+                localStorage.removeItem('conversionHistory');
+                loadHistory();
+                showMessage('History cleared', 'success');
+            }
+        }
+        
+        function showMessage(text, type) {
+            const msg = document.getElementById("message");
+            msg.innerText = text;
+            msg.className = type;
+            
+            // Clear message after 5 seconds
+            setTimeout(() => {
+                msg.innerText = "";
+                msg.className = "";
+            }, 5000);
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is logged in
+            fetch("/api/auth/session")
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.loggedIn) {
+                        window.location.href = "login.html";
+                    }
+                })
+                .catch(error => {
+                    console.error("Session check failed:", error);
+                    window.location.href = "login.html";
+                });
+        });
+    </script>
+</body>
+</html>
