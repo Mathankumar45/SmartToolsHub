@@ -1,20 +1,38 @@
-# Step 1: Tell Docker to use an official Java 17 image.
-# This is like installing Java on the server.
+# Stage 1: The "Builder" Stage
+# We use an official Maven image with Java 17 to build our application.
+FROM maven:3.9-openjdk-17 AS builder
+
+# Set the working directory for the build
+WORKDIR /build
+
+# Copy the pom.xml file first. This is a trick to make builds faster.
+# If pom.xml doesn't change, Docker won't re-download dependencies every time.
+COPY pom.xml .
+
+# Download all the dependencies
+RUN mvn dependency:go-offline -B
+
+# Copy the rest of your source code
+COPY src ./src
+
+# Build the application and package it into a .jar file
+# The -DskipTests flag skips running tests to make the build faster
+RUN mvn package -DskipTests
+
+
+# Stage 2: The "Final" Stage
+# We use a small, efficient Java image to run the application.
 FROM eclipse-temurin:17-jre-alpine
 
-# Step 2: Set a working directory inside the server.
-# This is like creating a folder called 'app' on the server.
+# Set the working directory for the final image
 WORKDIR /app
 
-# Step 3: Copy your application's jar file into the server.
-# IMPORTANT: You MUST change "my-app.jar" to your actual jar file name.
-# You can find this name inside the 'target' folder of your project.
-COPY target/SmartToolsHub-0.0.1-SNAPSHOT.jar /app/SmartToolsHub-0.0.1-SNAPSHOT.jar
+# Copy the built .jar file from the "builder" stage
+# IMPORTANT: Make sure the name "SmartToolsHub-0.0.1-SNAPSHOT.jar" is EXACTLY correct!
+COPY --from=builder /build/target/SmartToolsHub-0.0.1-SNAPSHOT.jar /app/SmartToolsHub-0.0.1-SNAPSHOT.jar
 
-# Step 4: Tell the server that your application listens on port 8080.
-# This allows traffic from the internet to reach your app.
+# Tell the server that your application listens on port 8080
 EXPOSE 8080
 
-# Step 5: The command to start your application.
-# IMPORTANT: You MUST change "my-app.jar" to the same name as above.
-CMD ["java", "-jar", "SmartToolsHub-0.0.1-SNAPSHOT.jar.jar"]
+# The command to start your application
+CMD ["java", "-jar", "SmartToolsHub-0.0.1-SNAPSHOT.jar"]
