@@ -6,7 +6,6 @@ FROM maven:3.9-openjdk-17 AS builder
 WORKDIR /build
 
 # Copy the pom.xml file first. This is a trick to make builds faster.
-# If pom.xml doesn't change, Docker won't re-download dependencies every time.
 COPY pom.xml .
 
 # Download all the dependencies
@@ -16,7 +15,6 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 
 # Build the application and package it into a .jar file
-# The -DskipTests flag skips running tests to make the build faster
 RUN mvn package -DskipTests
 
 
