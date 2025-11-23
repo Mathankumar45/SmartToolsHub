@@ -27,7 +27,7 @@ WORKDIR /app
 
 # Copy the built .jar file from the "builder" stage
 # IMPORTANT: Make sure the name "SmartToolsHub-0.0.1-SNAPSHOT.jar" is EXACTLY correct!
-COPY --from=builder /build/target/SmartToolsHub-0.0.1-SNAPSHOT.jar /app/SmartToolsHub-0.0.1-SNAPSHOT.jar
+COPY target/SmartToolsHub-0.0.1-SNAPSHOT.jar /app/SmartToolsHub-0.0.1-SNAPSHOT.jar
 
 # Tell the server that your application listens on port 8080
 EXPOSE 8080
