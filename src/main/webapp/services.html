@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - Smart Tools Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f9fc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #0066ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .hero h2 {
+            font-size: 36px;
+            margin-bottom: 20px;
+        }
+        .hero p {
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .service-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        .service-title {
+            font-size: 24px;
+            color: #0066ff;
+            margin-bottom: 15px;
+        }
+        .service-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        .service-features {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 25px;
+        }
+        .service-features li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+            padding-left: 25px;
+        }
+        .service-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #0066ff;
+            font-weight: bold;
+        }
+        .btn-primary {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            background: #0052cc;
+        }
+        .contact-section {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #0066ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .back-btn:hover {
+            background: #0052cc;
+        }
+        .success-message {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Our Professional Services</h1>
+        
+        <div class="hero">
+            <h2>Transform Your Ideas Into Digital Reality</h2>
+            <p>We specialize in creating custom websites, e-commerce platforms, and banking solutions that drive growth and innovation for your business.</p>
+        </div>
+
+        <div class="services-grid">
+            <!-- Web Development Service -->
+            <div class="service-card">
+                <div class="service-icon">🌐</div>
+                <h3 class="service-title">Web Development</h3>
+                <p class="service-description">
+                    Custom websites built with modern technologies to showcase your brand and engage your audience.
+                </p>
+                <ul class="service-features">
+                    <li>Responsive Design</li>
+                    <li>SEO Optimization</li>
+                    <li>Fast Loading Speed</li>
+                    <li>CMS Integration</li>
+                    <li>Custom Features</li>
+                </ul>
+                <button class="btn-primary" onclick="openInquiryForm('Web Development')">Get Quote</button>
+            </div>
+
+            <!-- E-commerce Service -->
+            <div class="service-card">
+                <div class="service-icon">🛒</div>
+                <h3 class="service-title">E-commerce Solutions</h3>
+                <p class="service-description">
+                    Complete online stores with payment integration, inventory management, and customer analytics.
+                </p>
+                <ul class="service-features">
+                    <li>Payment Gateway Integration</li>
+                    <li>Inventory Management</li>
+                    <li>Shopping Cart & Checkout</li>
+                    <li>Order Tracking</li>
+                    <li>Mobile Commerce Ready</li>
+                </ul>
+                <button class="btn-primary" onclick="openInquiryForm('E-commerce')">Get Quote</button>
+            </div>
+
+            <!-- Banking Solutions Service -->
+            <div class="service-card">
+                <div class="service-icon">🏦</div>
+                <h3 class="service-title">Banking Solutions</h3>
+                <p class="service-description">
+                    Secure banking platforms with advanced features for modern financial institutions.
+                </p>
+                <ul class="service-features">
+                    <li>Secure Transactions</li>
+                    <li>Account Management</li>
+                    <li>Mobile Banking</li>
+                    <li>Analytics Dashboard</li>
+                    <li>Compliance Ready</li>
+                </ul>
+                <button class="btn-primary" onclick="openInquiryForm('Banking Solutions')">Get Quote</button>
+            </div>
+        </div>
+
+        <div class="contact-section">
+            <h2>Start Your Project Today</h2>
+            <p style="color: #666; margin-bottom: 30px;">
+                Tell us about your project and we'll get back to you with a customized solution.
+            </p>
+
+           <form id="inquiryForm" class="contact-form" onsubmit="submitInquiry(event)">
+    <div class="form-group">
+        <label for="inquiryName">Your Name *</label>
+        <input type="text" id="inquiryName" name="name" required>
+    </div>
+
+    <div class="form-group">
+        <label for="inquiryEmail">Email Address *</label>
+        <input type="email" id="inquiryEmail" name="email" required>
+    </div>
+
+    <div class="form-group">
+        <label for="inquiryPhone">Phone Number</label>
+        <input type="tel" id="inquiryPhone" name="phone">
+    </div>
+
+    <div class="form-group">
+        <label for="inquiryService">Service Type *</label>
+        <select id="inquiryService" name="serviceType" required>
+            <option value="">Select a service</option>
+            <option value="Web Development">Web Development</option>
+            <option value="E-commerce">E-commerce Solutions</option>
+            <option value="Banking Solutions">Banking Solutions</option>
+            <option value="Other">Other</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="inquiryBudget">Estimated Budget</label>
+        <select id="inquiryBudget" name="budget">
+            <option value="">Select budget range</option>
+            <option value="1000-5000">$1,000 - $5,000</option>
+            <option value="5000-10000">$5,000 - $10,000</option>
+            <option value="10000-25000">$10,000 - $25,000</option>
+            <option value="25000+">$25,000+</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="inquiryMessage">Project Details *</label>
+        <textarea id="inquiryMessage" name="message" required></textarea>
+    </div>
+
+    <button type="submit" class="btn-primary">Send Inquiry</button>
+</form>
+
+            <div id="inquirySuccess" class="success-message">
+                Thank you for your inquiry! We'll contact you within 24 hours.
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">← Back to Home</a>
+    </div>
+
+    <script>
+        function openInquiryForm(serviceType) {
+            document.getElementById('inquiryService').value = serviceType;
+            document.getElementById('inquiryService').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function submitInquiry(event) {
+            event.preventDefault();
+            
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData);
+            
+            fetch('/api/inquiry', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    document.getElementById('inquirySuccess').style.display = 'block';
+                    event.target.reset();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Network error. Please try again.');
+            });
+        }
+    </script>
+</body>
+</html>

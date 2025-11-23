@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Counter - Smart Tools Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f7f9fc; }
+        .navbar { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .logo { font-size: 22px; font-weight: bold; color: #0066ff; text-decoration: none; }
+        .nav-links a { margin: 0 15px; text-decoration: none; color: #333; }
+        .user-info { display: flex; align-items: center; gap: 15px; font-weight: bold; }
+        .logout-btn { padding: 8px 14px; background: #0066ff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        
+        .tool-container { max-width: 900px; margin: 40px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .tool-container h1 { color: #333; text-align: center; }
+        .tool-container p { color: #666; text-align: center; margin-bottom: 30px; }
+        
+        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+        .tab-button { background: none; border: none; padding: 15px 20px; font-size: 16px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab-button.active { border-bottom-color: #0066ff; color: #0066ff; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            min-height: 200px;
+            resize: vertical;
+            font-family: inherit;
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 6px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #0066ff;
+            background-color: #f0f7ff;
+        }
+        .upload-area.dragover {
+            border-color: #0066ff;
+            background-color: #f0f7ff;
+        }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; transition: background-color 0.3s; }
+        .btn-primary { background: #0066ff; color: white; }
+        .btn-primary:hover { background: #0052cc; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background-color: #f0f2f5;
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066ff;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .word-frequency {
+            margin-top: 20px;
+        }
+        
+        .word-frequency h3 {
+            margin-bottom: 10px;
+        }
+        
+        .frequency-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .frequency-item {
+            background-color: #f0f2f5;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .frequency-count {
+            font-weight: bold;
+            color: #0066ff;
+        }
+        
+        .reading-time {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f7ff;
+            border-radius: 6px;
+            border-left: 4px solid #0066ff;
+        }
+        
+        .reading-time h3 {
+            margin-top: 0;
+            color: #0066ff;
+        }
+        
+        .file-info {
+            background-color: #f0f2f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <a href="index.html" class="logo">🔧 Smart Tools Hub</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+        </div>
+        <div class="user-info">
+            <span id="username">Loading...</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- MAIN TOOL CONTENT -->
+    <div class="tool-container">
+        <h1>🧮 Word Counter</h1>
+        <p>Count words, characters, and analyze text statistics.</p>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('text-input')">Text Input</button>
+            <button class="tab-button" onclick="showTab('file-upload')">File Upload</button>
+        </div>
+
+        <!-- Text Input Tab -->
+        <div id="text-input" class="tab-content active">
+            <div class="form-group">
+                <label for="text-input-area">Enter Your Text</label>
+                <textarea id="text-input-area" placeholder="Type or paste your text here..."></textarea>
+            </div>
+            
+            <button class="btn btn-primary" onclick="analyzeText()">Analyze Text</button>
+            
+            <div id="text-stats" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="word-count">0</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="char-count">0</div>
+                        <div class="stat-label">Characters</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="char-no-space-count">0</div>
+                        <div class="stat-label">Characters (no spaces)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="sentence-count">0</div>
+                        <div class="stat-label">Sentences</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="paragraph-count">0</div>
+                        <div class="stat-label">Paragraphs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avg-word-length">0</div>
+                        <div class="stat-label">Avg. Word Length</div>
+                    </div>
+                </div>
+                
+                <div class="reading-time">
+                    <h3>Reading Time</h3>
+                    <p id="reading-time-text">Approximately 0 minutes to read</p>
+                </div>
+                
+                <div class="word-frequency">
+                    <h3>Word Frequency</h3>
+                    <div class="frequency-list" id="frequency-list">
+                        <!-- Word frequency items will be added here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Upload Tab -->
+        <div id="file-upload" class="tab-content">
+            <div class="upload-area" id="uploadArea">
+                <p>📤 Drag and drop a text file here or click to browse</p>
+                <input type="file" id="fileInput" style="display: none;" accept=".txt,.doc,.docx,.pdf">
+            </div>
+            
+            <div class="file-info" id="fileInfo">
+                <h3>Selected File:</h3>
+                <p id="fileName"></p>
+                <p id="fileSize"></p>
+            </div>
+            
+            <button class="btn btn-primary" id="analyzeFileBtn" onclick="analyzeFile()" disabled>Analyze File</button>
+            
+            <div id="file-stats" style="display: none;">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="file-word-count">0</div>
+                        <div class="stat-label">Words</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="file-char-count">0</div>
+                        <div class="stat-label">Characters</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="file-char-no-space-count">0</div>
+                        <div class="stat-label">Characters (no spaces)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="file-sentence-count">0</div>
+                        <div class="stat-label">Sentences</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="file-paragraph-count">0</div>
+                        <div class="stat-label">Paragraphs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="file-avg-word-length">0</div>
+                        <div class="stat-label">Avg. Word Length</div>
+                    </div>
+                </div>
+                
+                <div class="reading-time">
+                    <h3>Reading Time</h3>
+                    <p id="file-reading-time-text">Approximately 0 minutes to read</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SESSION & LOGOUT ---
+        fetch("/api/auth/session").then(res => res.json()).then(data => {
+            if (data.loggedIn) { document.getElementById("username").textContent = data.email; }
+            else { window.location.href = "login.html"; }
+        }).catch(error => { console.error("Error checking session:", error); window.location.href = "login.html"; });
+        
+        function logout() { 
+            fetch("/api/auth/logout", { method: "POST" }).then(() => window.location.href = "login.html"); 
+        }
+
+        // --- TAB FUNCTIONALITY ---
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // --- TEXT ANALYSIS ---
+        function analyzeText() {
+            const text = document.getElementById('text-input-area').value;
+            
+            if (!text.trim()) {
+                alert('Please enter some text to analyze.');
+                return;
+            }
+            
+            const stats = calculateStats(text);
+            displayStats(stats, 'text');
+            
+            // Show the stats section
+            document.getElementById('text-stats').style.display = 'block';
+        }
+        
+        function calculateStats(text) {
+            // Word count
+            const words = text.trim().split(/\s+/).filter(word => word.length > 0);
+            const wordCount = words.length;
+            
+            // Character count
+            const charCount = text.length;
+            
+            // Character count without spaces
+            const charNoSpaceCount = text.replace(/\s/g, '').length;
+            
+            // Sentence count (simplified)
+            const sentences = text.split(/[.!?]+/).filter(sentence => sentence.trim().length > 0);
+            const sentenceCount = sentences.length;
+            
+            // Paragraph count
+            const paragraphs = text.split(/\n\n+/).filter(paragraph => paragraph.trim().length > 0);
+            const paragraphCount = paragraphs.length;
+            
+            // Average word length
+            let totalWordLength = 0;
+            words.forEach(word => {
+                // Remove punctuation from the word
+                const cleanWord = word.replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, '');
+                totalWordLength += cleanWord.length;
+            });
+            const avgWordLength = wordCount > 0 ? (totalWordLength / wordCount).toFixed(2) : 0;
+            
+            // Reading time (assuming average reading speed of 200 words per minute)
+            const readingTimeMinutes = Math.ceil(wordCount / 200);
+            
+            // Word frequency
+            const wordFrequency = {};
+            words.forEach(word => {
+                // Convert to lowercase and remove punctuation
+                const cleanWord = word.toLowerCase().replace(/[.,/#!$%^&*;:{}=\-_`~()]/g, '');
+                
+                if (cleanWord.length > 0) {
+                    wordFrequency[cleanWord] = (wordFrequency[cleanWord] || 0) + 1;
+                }
+            });
+            
+            // Sort by frequency and get top 10
+            const sortedWordFrequency = Object.entries(wordFrequency)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            return {
+                wordCount,
+                charCount,
+                charNoSpaceCount,
+                sentenceCount,
+                paragraphCount,
+                avgWordLength,
+                readingTimeMinutes,
+                wordFrequency: sortedWordFrequency
+            };
+        }
+        
+        function displayStats(stats, prefix) {
+            // Update stat cards
+            document.getElementById(`${prefix}-word-count`).textContent = stats.wordCount;
+            document.getElementById(`${prefix}-char-count`).textContent = stats.charCount;
+            document.getElementById(`${prefix}-char-no-space-count`).textContent = stats.charNoSpaceCount;
+            document.getElementById(`${prefix}-sentence-count`).textContent = stats.sentenceCount;
+            document.getElementById(`${prefix}-paragraph-count`).textContent = stats.paragraphCount;
+            document.getElementById(`${prefix}-avg-word-length`).textContent = stats.avgWordLength;
+            
+            // Update reading time
+            const readingTimeText = stats.readingTimeMinutes === 1 
+                ? 'Approximately 1 minute to read' 
+                : `Approximately ${stats.readingTimeMinutes} minutes to read`;
+            document.getElementById(`${prefix}-reading-time-text`).textContent = readingTimeText;
+            
+            // Update word frequency (only for text input tab)
+            if (prefix === 'text') {
+                const frequencyList = document.getElementById('frequency-list');
+                frequencyList.innerHTML = '';
+                
+                stats.wordFrequency.forEach(([word, count]) => {
+                    const item = document.createElement('div');
+                    item.className = 'frequency-item';
+                    item.innerHTML = `${word} <span class="frequency-count">(${count})</span>`;
+                    frequencyList.appendChild(item);
+                });
+            }
+        }
+        
+        // --- FILE UPLOAD ---
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const analyzeFileBtn = document.getElementById('analyzeFileBtn');
+        
+        let selectedFile = null;
+        
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+        
+        fileInput.addEventListener('change', handleFileSelect);
+        
+        function handleFileSelect() {
+            if (fileInput.files.length === 0) return;
+            
+            selectedFile = fileInput.files[0];
+            
+            fileName.textContent = `Name: ${selectedFile.name}`;
+            fileSize.textContent = `Size: ${formatFileSize(selectedFile.size)}`;
+            
+            fileInfo.style.display = 'block';
+            analyzeFileBtn.disabled = false;
+            
+            // Reset previous results
+            document.getElementById('file-stats').style.display = 'none';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        async function analyzeFile() {
+            if (!selectedFile) return;
+            
+            try {
+                const fileContent = await readFileContent(selectedFile);
+                const stats = calculateStats(fileContent);
+                displayStats(stats, 'file');
+                
+                // Show the stats section
+                document.getElementById('file-stats').style.display = 'block';
+            } catch (error) {
+                alert(`Error reading file: ${error.message}`);
+            }
+        }
+        
+        function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    resolve(e.target.result);
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error('Failed to read file'));
+                };
+                
+                // For simplicity, we'll only handle text files
+                // In a real implementation, you might need additional libraries for other file types
+                reader.readAsText(file);
+            });
+        }
+    </script>
+</body>
+</html>

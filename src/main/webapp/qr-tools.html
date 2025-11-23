@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Tools - Smart Tools Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f9fc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #0066ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .tool-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 12px 20px;
+            background: #e8e8e8;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .tab-btn.active {
+            background: #0066ff;
+            color: white;
+        }
+        .tool-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        .tool-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .btn-primary {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover {
+            background: #0052cc;
+        }
+        .result-box {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .qr-display, .barcode-display {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        .generated-content {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            word-break: break-all;
+            position: relative;
+        }
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .copy-btn:hover {
+            background: #0052cc;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #0066ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .back-btn:hover {
+            background: #0052cc;
+        }
+        .options-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .option-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .option-card:hover {
+            background: #e6f2ff;
+            border-color: #0066ff;
+        }
+        .option-card.selected {
+            background: #e6f2ff;
+            border-color: #0066ff;
+        }
+        .option-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .option-title {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📱 QR Tools & Generators</h1>
+        
+        <div class="tool-tabs">
+            <button class="tab-btn active" onclick="switchTab('qrcode')">QR Code</button>
+            <button class="tab-btn" onclick="switchTab('barcode')">Barcode</button>
+            <button class="tab-btn" onclick="switchTab('lorem')">Lorem Ipsum</button>
+            <button class="tab-btn" onclick="switchTab('uuid')">UUID</button>
+            <button class="tab-btn" onclick="switchTab('slug')">Slug Generator</button>
+        </div>
+
+        <!-- QR Code Generator -->
+        <div id="qrcode" class="tool-content active">
+            <div class="form-group">
+                <label for="qrText">Enter Text or URL</label>
+                <textarea id="qrText" placeholder="Enter text, URL, or any data to generate QR code"></textarea>
+            </div>
+            
+            <div class="options-group">
+                <div class="option-card selected" onclick="selectQRSize(this, 256)">
+                    <div class="option-icon">📱</div>
+                    <div class="option-title">Medium (256px)</div>
+                </div>
+                <div class="option-card" onclick="selectQRSize(this, 128)">
+                    <div class="option-icon">📲</div>
+                    <div class="option-title">Small (128px)</div>
+                </div>
+                <div class="option-card" onclick="selectQRSize(this, 512)">
+                    <div class="option-icon">🖥️</div>
+                    <div class="option-title">Large (512px)</div>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="generateQR()">Generate QR Code</button>
+            
+            <div class="qr-display" id="qrDisplay"></div>
+        </div>
+
+        <!-- Barcode Generator -->
+        <div id="barcode" class="tool-content">
+            <div class="form-group">
+                <label for="barcodeText">Enter Text or Numbers</label>
+                <input type="text" id="barcodeText" placeholder="Enter text or numbers for barcode">
+            </div>
+            
+            <div class="form-group">
+                <label for="barcodeFormat">Barcode Format</label>
+                <select id="barcodeFormat">
+                    <option value="CODE128">CODE128</option>
+                    <option value="CODE39">CODE39</option>
+                    <option value="EAN13">EAN-13</option>
+                    <option value="EAN8">EAN-8</option>
+                    <option value="UPC">UPC</option>
+                </select>
+            </div>
+            
+            <button class="btn-primary" onclick="generateBarcode()">Generate Barcode</button>
+            
+            <div class="barcode-display" id="barcodeDisplay"></div>
+        </div>
+
+        <!-- Lorem Ipsum Generator -->
+        <div id="lorem" class="tool-content">
+            <div class="form-group">
+                <label for="loremType">Type of Text</label>
+                <select id="loremType">
+                    <option value="words">Words</option>
+                    <option value="sentences">Sentences</option>
+                    <option value="paragraphs">Paragraphs</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="loremAmount">Amount</label>
+                <input type="number" id="loremAmount" value="5" min="1" max="100">
+            </div>
+            
+            <button class="btn-primary" onclick="generateLorem()">Generate Lorem Ipsum</button>
+            
+            <div class="generated-content" id="loremResult" style="display: none;">
+                <button class="copy-btn" onclick="copyToClipboard('loremResult')">Copy</button>
+                <div id="loremText"></div>
+            </div>
+        </div>
+
+        <!-- UUID Generator -->
+        <div id="uuid" class="tool-content">
+            <div class="form-group">
+                <label for="uuidVersion">UUID Version</label>
+                <select id="uuidVersion">
+                    <option value="v4">Version 4 (Random)</option>
+                    <option value="v1">Version 1 (Time-based)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="uuidCount">Number of UUIDs</label>
+                <input type="number" id="uuidCount" value="1" min="1" max="10">
+            </div>
+            
+            <button class="btn-primary" onclick="generateUUID()">Generate UUID</button>
+            
+            <div class="generated-content" id="uuidResult" style="display: none;">
+                <button class="copy-btn" onclick="copyToClipboard('uuidResult')">Copy All</button>
+                <div id="uuidList"></div>
+            </div>
+        </div>
+
+        <!-- Slug Generator -->
+        <div id="slug" class="tool-content">
+            <div class="form-group">
+                <label for="slugText">Enter Text</label>
+                <textarea id="slugText" placeholder="Enter text to convert to slug (URL-friendly format)"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Options</label>
+                <label style="font-weight: normal;">
+                    <input type="checkbox" id="lowercase" checked> Convert to lowercase
+                </label>
+                <label style="font-weight: normal;">
+                    <input type="checkbox" id="removeNumbers"> Remove numbers
+                </label>
+                <label style="font-weight: normal;">
+                    <input type="checkbox" id="customSeparator" checked> Custom separator:
+                </label>
+                <input type="text" id="separator" value="-" style="width: 50px; display: inline-block;">
+            </div>
+            
+            <button class="btn-primary" onclick="generateSlug()">Generate Slug</button>
+            
+            <div class="generated-content" id="slugResult" style="display: none;">
+                <button class="copy-btn" onclick="copyToClipboard('slugResult')">Copy</button>
+                <div id="slugText"></div>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">← Back to Home</a>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    
+    <!-- JsBarcode Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+
+    <script>
+        let selectedQRSize = 256;
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tool-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function selectQRSize(element, size) {
+            document.querySelectorAll('.option-card').forEach(card => card.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedQRSize = size;
+        }
+
+        // QR Code Generator
+        function generateQR() {
+            const text = document.getElementById('qrText').value;
+            if (!text) {
+                alert('Please enter text or URL');
+                return;
+            }
+            
+            const qrDisplay = document.getElementById('qrDisplay');
+            qrDisplay.innerHTML = '';
+            
+            QRCode.toCanvas(text, { 
+                width: selectedQRSize,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, (error, canvas) => {
+                if (error) {
+                    qrDisplay.innerHTML = '<p style="color: red;">Error generating QR code</p>';
+                } else {
+                    qrDisplay.appendChild(canvas);
+                    
+                    // Add download button
+                    const downloadBtn = document.createElement('button');
+                    downloadBtn.className = 'btn-primary';
+                    downloadBtn.textContent = 'Download QR Code';
+                    downloadBtn.style.marginTop = '15px';
+                    downloadBtn.onclick = () => {
+                        const link = document.createElement('a');
+                        link.download = 'qrcode.png';
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    };
+                    qrDisplay.appendChild(downloadBtn);
+                }
+            });
+        }
+
+        // Barcode Generator
+        function generateBarcode() {
+            const text = document.getElementById('barcodeText').value;
+            const format = document.getElementById('barcodeFormat').value;
+            
+            if (!text) {
+                alert('Please enter text or numbers');
+                return;
+            }
+            
+            const barcodeDisplay = document.getElementById('barcodeDisplay');
+            barcodeDisplay.innerHTML = '';
+            
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            
+            try {
+                JsBarcode(svg, text, {
+                    format: format,
+                    width: 2,
+                    height: 100,
+                    displayValue: true
+                });
+                
+                barcodeDisplay.appendChild(svg);
+                
+                // Add download button
+                const downloadBtn = document.createElement('button');
+                downloadBtn.className = 'btn-primary';
+                downloadBtn.textContent = 'Download Barcode';
+                downloadBtn.style.marginTop = '15px';
+                downloadBtn.onclick = () => {
+                    const svgData = new XMLSerializer().serializeToString(svg);
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    img.onload = function() {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        ctx.drawImage(img, 0, 0);
+                        
+                        const link = document.createElement('a');
+                        link.download = 'barcode.png';
+                        link.href = canvas.toDataURL();
+                        link.click();
+                    };
+                    
+                    img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+                };
+                
+                barcodeDisplay.appendChild(downloadBtn);
+            } catch (error) {
+                barcodeDisplay.innerHTML = '<p style="color: red;">Error generating barcode: ' + error.message + '</p>';
+            }
+        }
+
+        // Lorem Ipsum Generator
+        function generateLorem() {
+            const type = document.getElementById('loremType').value;
+            const amount = parseInt(document.getElementById('loremAmount').value);
+            
+            const words = ['lorem', 'ipsum', 'dolor', 'sit', 'amet', 'consectetur', 'adipiscing', 'elit', 'sed', 'do', 'eiusmod', 'tempor', 'incididunt', 'ut', 'labore', 'et', 'dolore', 'magna', 'aliqua'];
+            const sentences = [
+                'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+                'Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+                'Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.',
+                'Duis aute irure dolor in reprehenderit in voluptate velit esse.',
+                'Excepteur sint occaecat cupidatat non proident, sunt in culpa.'
+            ];
+            
+            let result = '';
+            
+            if (type === 'words') {
+                for (let i = 0; i < amount; i++) {
+                    result += words[Math.floor(Math.random() * words.length)] + ' ';
+                }
+            } else if (type === 'sentences') {
+                for (let i = 0; i < amount; i++) {
+                    result += sentences[Math.floor(Math.random() * sentences.length)] + ' ';
+                }
+            } else if (type === 'paragraphs') {
+                for (let i = 0; i < amount; i++) {
+                    const paragraphLength = Math.floor(Math.random() * 3) + 3;
+                    for (let j = 0; j < paragraphLength; j++) {
+                        result += sentences[Math.floor(Math.random() * sentences.length)] + ' ';
+                    }
+                    result += '\n\n';
+                }
+            }
+            
+            document.getElementById('loremText').textContent = result.trim();
+            document.getElementById('loremResult').style.display = 'block';
+        }
+
+        // UUID Generator
+        function generateUUID() {
+            const version = document.getElementById('uuidVersion').value;
+            const count = parseInt(document.getElementById('uuidCount').value);
+            
+            let uuids = [];
+            
+            for (let i = 0; i < count; i++) {
+                if (version === 'v4') {
+                    uuids.push('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                        const r = Math.random() * 16 | 0;
+                        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                        return v.toString(16);
+                    }));
+                } else {
+                    // Simple v1 simulation (not truly time-based)
+                    const timestamp = Date.now();
+                    const random = Math.random().toString(36).substring(2, 15);
+                    uuids.push(`${timestamp}-${random}-4xxx-yxxx-xxxxxxxxxxxx`.replace(/[xy]/g, function(c) {
+                        const r = Math.random() * 16 | 0;
+                        const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                        return v.toString(16);
+                    }));
+                }
+            }
+            
+            document.getElementById('uuidList').innerHTML = uuids.map(uuid => `<div style="margin-bottom: 10px;">${uuid}</div>`).join('');
+            document.getElementById('uuidResult').style.display = 'block';
+        }
+
+        // Slug Generator
+        function generateSlug() {
+            const text = document.getElementById('slugText').value;
+            const lowercase = document.getElementById('lowercase').checked;
+            const removeNumbers = document.getElementById('removeNumbers').checked;
+            const separator = document.getElementById('separator').value || '-';
+            
+            if (!text) {
+                alert('Please enter text');
+                return;
+            }
+            
+            let slug = text;
+            
+            // Convert to lowercase if option is checked
+            if (lowercase) {
+                slug = slug.toLowerCase();
+            }
+            
+            // Remove numbers if option is checked
+            if (removeNumbers) {
+                slug = slug.replace(/\d+/g, '');
+            }
+            
+            // Replace spaces and special characters with separator
+            slug = slug
+                .trim()
+                .replace(/[^\w\s-]/g, '') // Remove special characters except hyphen
+                .replace(/[\s_-]+/g, separator) // Replace spaces, underscores, hyphens with separator
+                .replace(new RegExp(`^${separator}+|${separator}+$`, 'g'), ''); // Remove separator from start and end
+            
+            document.getElementById('slugText').textContent = slug;
+            document.getElementById('slugResult').style.display = 'block';
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent.replace('Copy', '').replace('Copy All', '').trim();
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+    </script>
+</body>
+</html>

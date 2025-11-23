@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Utilities - Smart Tools Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f9fc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #0066ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .tool-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 12px 20px;
+            background: #e8e8e8;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        .tab-btn.active {
+            background: #0066ff;
+            color: white;
+        }
+        .tool-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+        .tool-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+            font-family: monospace;
+        }
+        .btn-primary {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        .btn-primary:hover {
+            background: #0052cc;
+        }
+        .result-box {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .copy-btn {
+            background: #0066ff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .copy-btn:hover {
+            background: #0052cc;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #0066ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .back-btn:hover {
+            background: #0052cc;
+        }
+        .url-result {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .short-url {
+            font-family: monospace;
+            font-size: 18px;
+            color: #0066ff;
+            word-break: break-all;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066ff;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .hash-results {
+            display: grid;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .hash-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #0066ff;
+        }
+        .hash-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        .hash-value {
+            font-family: monospace;
+            word-break: break-all;
+            color: #666;
+        }
+        .text-case-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .case-btn {
+            padding: 10px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .case-btn:hover {
+            background: #e6f2ff;
+            border-color: #0066ff;
+        }
+        .error-message {
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+        .success-message {
+            color: #388e3c;
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛠️ Utilities</h1>
+        
+        <div class="tool-tabs">
+            <button class="tab-btn active" onclick="switchTab('urlshortener')">URL Shortener</button>
+            <button class="tab-btn" onclick="switchTab('json')">JSON Formatter</button>
+            <button class="tab-btn" onclick="switchTab('base64')">Base64</button>
+            <button class="tab-btn" onclick="switchTab('hash')">Hash Generator</button>
+            <button class="tab-btn" onclick="switchTab('textcase')">Text Case</button>
+        </div>
+
+        <!-- URL Shortener -->
+        <div id="urlshortener" class="tool-content active">
+            <div class="form-group">
+                <label for="longUrl">Enter Long URL</label>
+                <input type="url" id="longUrl" placeholder="https://example.com/very-long-url-to-shorten">
+            </div>
+            
+            <div class="form-group">
+                <label for="customAlias">Custom Alias (Optional)</label>
+                <input type="text" id="customAlias" placeholder="custom-name">
+            </div>
+            
+            <button class="btn-primary" onclick="shortenURL()">Shorten URL</button>
+            
+            <div id="urlResult" style="display: none;">
+                <div class="url-result">
+                    <div class="short-url" id="shortUrl"></div>
+                    <button class="copy-btn" onclick="copyToClipboard('shortUrl')">Copy</button>
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="clickCount">0</div>
+                        <div class="stat-label">Clicks</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="createdDate">Today</div>
+                        <div class="stat-label">Created</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="urlError" class="error-message" style="display: none;"></div>
+        </div>
+
+        <!-- JSON Formatter -->
+        <div id="json" class="tool-content">
+            <div class="form-group">
+                <label for="jsonInput">JSON Input</label>
+                <textarea id="jsonInput" placeholder='{"name": "John", "age": 30}'></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="btn-primary" onclick="formatJSON()">Format</button>
+                <button class="btn-primary" onclick="minifyJSON()">Minify</button>
+                <button class="btn-primary" onclick="validateJSON()">Validate</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="jsonOutput">Output</label>
+                <textarea id="jsonOutput" readonly></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('jsonOutput')">Copy</button>
+            </div>
+            
+            <div id="jsonError" class="error-message" style="display: none;"></div>
+            <div id="jsonSuccess" class="success-message" style="display: none;"></div>
+        </div>
+
+        <!-- Base64 Encoder/Decoder -->
+        <div id="base64" class="tool-content">
+            <div class="form-group">
+                <label for="base64Input">Input Text</label>
+                <textarea id="base64Input" placeholder="Enter text to encode or decode..."></textarea>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <button class="btn-primary" onclick="encodeBase64()">Encode</button>
+                <button class="btn-primary" onclick="decodeBase64()">Decode</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="base64Output">Output</label>
+                <textarea id="base64Output" readonly></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('base64Output')">Copy</button>
+            </div>
+            
+            <div id="base64Error" class="error-message" style="display: none;"></div>
+        </div>
+
+        <!-- Hash Generator -->
+        <div id="hash" class="tool-content">
+            <div class="form-group">
+                <label for="hashInput">Input Text</label>
+                <textarea id="hashInput" placeholder="Enter text to generate hash..."></textarea>
+            </div>
+            
+            <button class="btn-primary" onclick="generateHash()">Generate Hash</button>
+            
+            <div class="hash-results" id="hashResults" style="display: none;">
+                <div class="hash-item">
+                    <div class="hash-label">MD5</div>
+                    <div class="hash-value" id="md5Hash"></div>
+                </div>
+                <div class="hash-item">
+                    <div class="hash-label">SHA-1</div>
+                    <div class="hash-value" id="sha1Hash"></div>
+                </div>
+                <div class="hash-item">
+                    <div class="hash-label">SHA-256</div>
+                    <div class="hash-value" id="sha256Hash"></div>
+                </div>
+                <div class="hash-item">
+                    <div class="hash-label">SHA-512</div>
+                    <div class="hash-value" id="sha512Hash"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Text Case Converter -->
+        <div id="textcase" class="tool-content">
+            <div class="form-group">
+                <label for="textInput">Input Text</label>
+                <textarea id="textInput" placeholder="Enter text to convert..."></textarea>
+            </div>
+            
+            <div class="text-case-options">
+                <button class="case-btn" onclick="convertCase('uppercase')">UPPERCASE</button>
+                <button class="case-btn" onclick="convertCase('lowercase')">lowercase</button>
+                <button class="case-btn" onclick="convertCase('title')">Title Case</button>
+                <button class="case-btn" onclick="convertCase('sentence')">Sentence case</button>
+                <button class="case-btn" onclick="convertCase('camel')">camelCase</button>
+                <button class="case-btn" onclick="convertCase('pascal')">PascalCase</button>
+                <button class="case-btn" onclick="convertCase('snake')">snake_case</button>
+                <button class="case-btn" onclick="convertCase('kebab')">kebab-case</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="textOutput">Output</label>
+                <textarea id="textOutput" readonly></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('textOutput')">Copy</button>
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">← Back to Home</a>
+    </div>
+
+    <!-- CryptoJS for Hash Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tool-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        // URL Shortener (Simulated)
+        function shortenURL() {
+            const longUrl = document.getElementById('longUrl').value;
+            const customAlias = document.getElementById('customAlias').value;
+            
+            if (!longUrl) {
+                showError('urlError', 'Please enter a URL');
+                return;
+            }
+            
+            // Simulate URL shortening (in real app, this would call an API)
+            const shortCode = customAlias || Math.random().toString(36).substring(2, 8);
+            const shortUrl = `https://short.link/${shortCode}`;
+            
+            document.getElementById('shortUrl').textContent = shortUrl;
+            document.getElementById('clickCount').textContent = Math.floor(Math.random() * 100);
+            document.getElementById('createdDate').textContent = new Date().toLocaleDateString();
+            document.getElementById('urlResult').style.display = 'block';
+            hideError('urlError');
+        }
+
+        // JSON Formatter
+        function formatJSON() {
+            const input = document.getElementById('jsonInput').value;
+            
+            try {
+                const parsed = JSON.parse(input);
+                const formatted = JSON.stringify(parsed, null, 2);
+                document.getElementById('jsonOutput').value = formatted;
+                showSuccess('jsonSuccess', 'JSON formatted successfully!');
+                hideError('jsonError');
+            } catch (error) {
+                showError('jsonError', 'Invalid JSON: ' + error.message);
+                hideSuccess('jsonSuccess');
+            }
+        }
+
+        function minifyJSON() {
+            const input = document.getElementById('jsonInput').value;
+            
+            try {
+                const parsed = JSON.parse(input);
+                const minified = JSON.stringify(parsed);
+                document.getElementById('jsonOutput').value = minified;
+                showSuccess('jsonSuccess', 'JSON minified successfully!');
+                hideError('jsonError');
+            } catch (error) {
+                showError('jsonError', 'Invalid JSON: ' + error.message);
+                hideSuccess('jsonSuccess');
+            }
+        }
+
+        function validateJSON() {
+            const input = document.getElementById('jsonInput').value;
+            
+            try {
+                JSON.parse(input);
+                showSuccess('jsonSuccess', 'Valid JSON!');
+                hideError('jsonError');
+            } catch (error) {
+                showError('jsonError', 'Invalid JSON: ' + error.message);
+                hideSuccess('jsonSuccess');
+            }
+        }
+
+        // Base64 Encoder/Decoder
+        function encodeBase64() {
+            const input = document.getElementById('base64Input').value;
+            
+            try {
+                const encoded = btoa(unescape(encodeURIComponent(input)));
+                document.getElementById('base64Output').value = encoded;
+                hideError('base64Error');
+            } catch (error) {
+                showError('base64Error', 'Error encoding: ' + error.message);
+            }
+        }
+
+        function decodeBase64() {
+            const input = document.getElementById('base64Input').value;
+            
+            try {
+                const decoded = decodeURIComponent(escape(atob(input)));
+                document.getElementById('base64Output').value = decoded;
+                hideError('base64Error');
+            } catch (error) {
+                showError('base64Error', 'Error decoding: Invalid Base64 string');
+            }
+        }
+
+        // Hash Generator
+        function generateHash() {
+            const input = document.getElementById('hashInput').value;
+            
+            if (!input) {
+                alert('Please enter text to generate hash');
+                return;
+            }
+            
+            document.getElementById('md5Hash').textContent = CryptoJS.MD5(input).toString();
+            document.getElementById('sha1Hash').textContent = CryptoJS.SHA1(input).toString();
+            document.getElementById('sha256Hash').textContent = CryptoJS.SHA256(input).toString();
+            document.getElementById('sha512Hash').textContent = CryptoJS.SHA512(input).toString();
+            
+            document.getElementById('hashResults').style.display = 'grid';
+        }
+
+        // Text Case Converter
+        function convertCase(type) {
+            const input = document.getElementById('textInput').value;
+            let output = '';
+            
+            switch(type) {
+                case 'uppercase':
+                    output = input.toUpperCase();
+                    break;
+                case 'lowercase':
+                    output = input.toLowerCase();
+                    break;
+                case 'title':
+                    output = input.replace(/\w\S*/g, (txt) => 
+                        txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+                    );
+                    break;
+                case 'sentence':
+                    output = input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
+                    output = output.replace(/([.!?]\s*)([a-z])/g, (_, p1, p2) => 
+                        p1 + p2.toUpperCase()
+                    );
+                    break;
+                case 'camel':
+                    output = input.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => 
+                        index === 0 ? word.toLowerCase() : word.toUpperCase()
+                    ).replace(/\s+/g, '');
+                    break;
+                case 'pascal':
+                    output = input.replace(/(?:^\w|[A-Z]|\b\w)/g, (word) => 
+                        word.toUpperCase()
+                    ).replace(/\s+/g, '');
+                    break;
+                case 'snake':
+                    output = input.toLowerCase().replace(/\s+/g, '_');
+                    break;
+                case 'kebab':
+                    output = input.toLowerCase().replace(/\s+/g, '-');
+                    break;
+            }
+            
+            document.getElementById('textOutput').value = output;
+        }
+
+        // Utility Functions
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.value || element.textContent;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+
+        function showError(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        function hideError(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+
+        function showSuccess(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        function hideSuccess(elementId) {
+            document.getElementById(elementId).style.display = 'none';
+        }
+    </script>
+</body>
+</html>

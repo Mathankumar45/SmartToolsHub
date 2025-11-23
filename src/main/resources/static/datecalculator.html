@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Calculator - Smart Tools Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body { margin: 0; font-family: Arial, sans-serif; background: #f7f9fc; }
+        .navbar { padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; background: white; border-bottom: 1px solid #ddd; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .logo { font-size: 22px; font-weight: bold; color: #0066ff; text-decoration: none; }
+        .nav-links a { margin: 0 15px; text-decoration: none; color: #333; }
+        .user-info { display: flex; align-items: center; gap: 15px; font-weight: bold; }
+        .logout-btn { padding: 8px 14px; background: #0066ff; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        
+        .tool-container { max-width: 900px; margin: 40px auto; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .tool-container h1 { color: #333; text-align: center; }
+        .tool-container p { color: #666; text-align: center; margin-bottom: 30px; }
+        
+        .tabs { display: flex; border-bottom: 2px solid #eee; margin-bottom: 20px; }
+        .tab-button { background: none; border: none; padding: 15px 20px; font-size: 16px; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab-button.active { border-bottom-color: #0066ff; color: #0066ff; font-weight: bold; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; transition: background-color 0.3s; }
+        .btn-primary { background: #0066ff; color: white; }
+        .btn-primary:hover { background: #0052cc; }
+        .btn-secondary { background: #6c757d; color: white; }
+        .btn-secondary:hover { background: #5a6268; }
+        
+        .result-container {
+            background-color: #f0f2f5;
+            padding: 20px;
+            border-radius: 6px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .result-label {
+            font-weight: bold;
+        }
+        
+        .result-value {
+            color: #0066ff;
+        }
+        
+        .error-message {
+            color: #dc3545;
+            margin-top: 10px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <a href="index.html" class="logo">🔧 Smart Tools Hub</a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+        </div>
+        <div class="user-info">
+            <span id="username">Loading...</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- MAIN TOOL CONTENT -->
+    <div class="tool-container">
+        <h1>📅 Date Calculator</h1>
+        <p>Calculate dates, add or subtract days, and find the duration between two dates.</p>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('add-subtract')">Add/Subtract Days</button>
+            <button class="tab-button" onclick="showTab('duration')">Duration Between</button>
+            <button class="tab-button" onclick="showTab('day-of-week')">Day of Week</button>
+        </div>
+
+        <!-- Add/Subtract Days Tab -->
+        <div id="add-subtract" class="tab-content active">
+            <div class="form-group">
+                <label for="base-date">Start Date</label>
+                <input type="date" id="base-date">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="operation">Operation</label>
+                    <select id="operation">
+                        <option value="add">Add</option>
+                        <option value="subtract">Subtract</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="days">Days</label>
+                    <input type="number" id="days" min="0" value="7">
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="calculateDate()">Calculate</button>
+            
+            <div class="result-container" id="add-subtract-result">
+                <div class="result-item">
+                    <span class="result-label">Result Date:</span>
+                    <span class="result-value" id="result-date"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Day of Week:</span>
+                    <span class="result-value" id="result-day"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Duration Between Tab -->
+        <div id="duration" class="tab-content">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start-date">Start Date</label>
+                    <input type="date" id="start-date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="end-date">End Date</label>
+                    <input type="date" id="end-date">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="include-end-date">Include End Date in Calculation</label>
+                <select id="include-end-date">
+                    <option value="no">No</option>
+                    <option value="yes">Yes</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-primary" onclick="calculateDuration()">Calculate Duration</button>
+            
+            <div class="result-container" id="duration-result">
+                <div class="result-item">
+                    <span class="result-label">Total Days:</span>
+                    <span class="result-value" id="total-days"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Weeks:</span>
+                    <span class="result-value" id="weeks"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Months (approximate):</span>
+                    <span class="result-value" id="months"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Years (approximate):</span>
+                    <span class="result-value" id="years"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Day of Week Tab -->
+        <div id="day-of-week" class="tab-content">
+            <div class="form-group">
+                <label for="dow-date">Date</label>
+                <input type="date" id="dow-date">
+            </div>
+            
+            <button class="btn btn-primary" onclick="calculateDayOfWeek()">Find Day of Week</button>
+            
+            <div class="result-container" id="dow-result">
+                <div class="result-item">
+                    <span class="result-label">Day of Week:</span>
+                    <span class="result-value" id="day-of-week"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Week Number:</span>
+                    <span class="result-value" id="week-number"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Day of Year:</span>
+                    <span class="result-value" id="day-of-year"></span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Is Leap Year:</span>
+                    <span class="result-value" id="is-leap-year"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SESSION & LOGOUT ---
+        fetch("/api/auth/session").then(res => res.json()).then(data => {
+            if (data.loggedIn) { document.getElementById("username").textContent = data.email; }
+            else { window.location.href = "login.html"; }
+        }).catch(error => { console.error("Error checking session:", error); window.location.href = "login.html"; });
+        
+        function logout() { 
+            fetch("/api/auth/logout", { method: "POST" }).then(() => window.location.href = "login.html"); 
+        }
+
+        // --- TAB FUNCTIONALITY ---
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(button => button.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // --- DATE CALCULATION FUNCTIONS ---
+        // Set today's date as default for all date inputs
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('base-date').value = today;
+            document.getElementById('start-date').value = today;
+            document.getElementById('end-date').value = today;
+            document.getElementById('dow-date').value = today;
+        };
+
+        function calculateDate() {
+            const baseDate = new Date(document.getElementById('base-date').value);
+            const operation = document.getElementById('operation').value;
+            const days = parseInt(document.getElementById('days').value);
+            
+            if (isNaN(baseDate.getTime()) || isNaN(days)) {
+                showError('Please enter valid date and number of days.');
+                return;
+            }
+            
+            const resultDate = new Date(baseDate);
+            
+            if (operation === 'add') {
+                resultDate.setDate(resultDate.getDate() + days);
+            } else {
+                resultDate.setDate(resultDate.getDate() - days);
+            }
+            
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const resultDateStr = resultDate.toLocaleDateString('en-US', options);
+            const dayOfWeek = resultDate.toLocaleDateString('en-US', { weekday: 'long' });
+            
+            document.getElementById('result-date').textContent = resultDateStr;
+            document.getElementById('result-day').textContent = dayOfWeek;
+            document.getElementById('add-subtract-result').style.display = 'block';
+        }
+
+        function calculateDuration() {
+            const startDate = new Date(document.getElementById('start-date').value);
+            const endDate = new Date(document.getElementById('end-date').value);
+            const includeEndDate = document.getElementById('include-end-date').value === 'yes';
+            
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+                showError('Please enter valid start and end dates.');
+                return;
+            }
+            
+            if (startDate > endDate) {
+                showError('Start date must be before end date.');
+                return;
+            }
+            
+            // Calculate the difference in milliseconds
+            const timeDiff = endDate.getTime() - startDate.getTime();
+            
+            // Convert to days
+            let daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            
+            // Include end date if requested
+            if (includeEndDate) {
+                daysDiff += 1;
+            }
+            
+            // Calculate weeks, months, and years
+            const weeks = Math.floor(daysDiff / 7);
+            const months = Math.floor(daysDiff / 30.44); // Average month length
+            const years = Math.floor(daysDiff / 365.25); // Account for leap years
+            
+            document.getElementById('total-days').textContent = daysDiff + ' days';
+            document.getElementById('weeks').textContent = weeks + ' weeks';
+            document.getElementById('months').textContent = months + ' months';
+            document.getElementById('years').textContent = years + ' years';
+            document.getElementById('duration-result').style.display = 'block';
+        }
+
+        function calculateDayOfWeek() {
+            const date = new Date(document.getElementById('dow-date').value);
+            
+            if (isNaN(date.getTime())) {
+                showError('Please enter a valid date.');
+                return;
+            }
+            
+            const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+            const weekNumber = getWeekNumber(date);
+            const dayOfYear = getDayOfYear(date);
+            const isLeapYear = isLeap(date.getFullYear());
+            
+            document.getElementById('day-of-week').textContent = dayOfWeek;
+            document.getElementById('week-number').textContent = weekNumber;
+            document.getElementById('day-of-year').textContent = dayOfYear;
+            document.getElementById('is-leap-year').textContent = isLeapYear ? 'Yes' : 'No';
+            document.getElementById('dow-result').style.display = 'block';
+        }
+
+        function getWeekNumber(date) {
+            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            const dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        function getDayOfYear(date) {
+            const start = new Date(date.getFullYear(), 0, 0);
+            const diff = date - start;
+            const oneDay = 1000 * 60 * 60 * 24;
+            return Math.floor(diff / oneDay);
+        }
+
+        function isLeap(year) {
+            return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+        }
+
+        function showError(message) {
+            // Create or update error message element
+            let errorElement = document.getElementById('error-message');
+            if (!errorElement) {
+                errorElement = document.createElement('div');
+                errorElement.id = 'error-message';
+                errorElement.className = 'error-message';
+                document.querySelector('.tool-container').appendChild(errorElement);
+            }
+            
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            
+            // Hide error message after 5 seconds
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
