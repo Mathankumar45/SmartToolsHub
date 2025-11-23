@@ -1,6 +1,6 @@
 # Step 1: Tell Docker to use an official Java 17 image.
 # This is like installing Java on the server.
-FROM openjdk:17-slim
+FROM eclipse-temurin:17-jre-alpine
 
 # Step 2: Set a working directory inside the server.
 # This is like creating a folder called 'app' on the server.
