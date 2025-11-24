@@ -21,12 +21,7 @@
     </properties>
 
     <dependencies>
-    <!-- Add this for PostgreSQL -->
-<dependency>
-    <groupId>org.postgresql</groupId>
-    <artifactId>postgresql</artifactId>
-    <version>42.7.2</version>
-</dependency>
+
         <!-- Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
