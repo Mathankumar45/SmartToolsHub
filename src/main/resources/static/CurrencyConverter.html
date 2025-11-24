@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter - Smart Tools Hub</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f9fc;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        h1 {
+            color: #0066ff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .converter-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .input-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .input-group select {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            min-width: 120px;
+        }
+        .swap-btn {
+            background: #0066ff;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            align-self: center;
+            transition: transform 0.3s;
+        }
+        .swap-btn:hover {
+            transform: rotate(180deg);
+        }
+        .result-box {
+            background: #f0f8ff;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #0066ff;
+        }
+        .exchange-rate {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #0066ff;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+        .back-btn:hover {
+            background: #0052cc;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💱 Currency Converter</h1>
+        
+        <div class="converter-form">
+            <div class="input-group">
+                <input type="number" id="amountInput" placeholder="Enter amount" value="1" oninput="convertCurrency()">
+                <select id="fromCurrency">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR">EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                    <option value="CHF">CHF - Swiss Franc</option>
+                    <option value="CNY">CNY - Chinese Yuan</option>
+                    <option value="INR">INR - Indian Rupee</option>
+                    <option value="BRL">BRL - Brazilian Real</option>
+                </select>
+            </div>
+            
+            <button class="swap-btn" onclick="swapCurrencies()">⇄</button>
+            
+            <div class="input-group">
+                <input type="text" id="resultInput" readonly placeholder="Result">
+                <select id="toCurrency">
+                    <option value="USD">USD - US Dollar</option>
+                    <option value="EUR" selected>EUR - Euro</option>
+                    <option value="GBP">GBP - British Pound</option>
+                    <option value="JPY">JPY - Japanese Yen</option>
+                    <option value="AUD">AUD - Australian Dollar</option>
+                    <option value="CAD">CAD - Canadian Dollar</option>
+                    <option value="CHF">CHF - Swiss Franc</option>
+                    <option value="CNY">CNY - Chinese Yuan</option>
+                    <option value="INR">INR - Indian Rupee</option>
+                    <option value="BRL">BRL - Brazilian Real</option>
+                </select>
+            </div>
+            
+            <div class="result-box" id="resultDisplay">
+                Enter an amount to convert
+            </div>
+            
+            <div class="exchange-rate" id="exchangeRate">
+                Exchange rates are updated regularly
+            </div>
+        </div>
+
+        <a href="index.html" class="back-btn">← Back to Home</a>
+    </div>
+
+    <script>
+        // Exchange rates (in a real app, you'd fetch these from an API)
+        const exchangeRates = {
+            USD: { EUR: 0.92, GBP: 0.79, JPY: 149.50, AUD: 1.52, CAD: 1.36, CHF: 0.88, CNY: 7.24, INR: 83.12, BRL: 4.97, USD: 1 },
+            EUR: { USD: 1.09, GBP: 0.86, JPY: 162.89, AUD: 1.66, CAD: 1.48, CHF: 0.96, CNY: 7.89, INR: 90.56, BRL: 5.42, EUR: 1 },
+            GBP: { USD: 1.27, EUR: 1.16, JPY: 189.34, AUD: 1.93, CAD: 1.72, CHF: 1.11, CNY: 9.17, INR: 105.26, BRL: 6.30, GBP: 1 },
+            JPY: { USD: 0.0067, EUR: 0.0061, GBP: 0.0053, AUD: 0.010, CAD: 0.0091, CHF: 0.0059, CNY: 0.048, INR: 0.56, BRL: 0.033, JPY: 1 },
+            AUD: { USD: 0.66, EUR: 0.60, GBP: 0.52, JPY: 98.36, CAD: 0.89, CHF: 0.58, CNY: 4.76, INR: 54.68, BRL: 3.27, AUD: 1 },
+            CAD: { USD: 0.74, EUR: 0.68, GBP: 0.58, JPY: 109.93, AUD: 1.12, CHF: 0.65, CNY: 5.32, INR: 61.13, BRL: 3.65, CAD: 1 },
+            CHF: { USD: 1.14, EUR: 1.04, GBP: 0.90, JPY: 169.89, AUD: 1.73, CAD: 1.55, CNY: 8.22, INR: 94.46, BRL: 5.65, CHF: 1 },
+            CNY: { USD: 0.14, EUR: 0.13, GBP: 0.11, JPY: 20.65, AUD: 0.21, CAD: 0.19, CHF: 0.12, INR: 11.48, BRL: 0.69, CNY: 1 },
+            INR: { USD: 0.012, EUR: 0.011, GBP: 0.0095, JPY: 1.80, AUD: 0.018, CAD: 0.016, CHF: 0.011, CNY: 0.087, BRL: 0.060, INR: 1 },
+            BRL: { USD: 0.20, EUR: 0.18, GBP: 0.16, JPY: 30.07, AUD: 0.31, CAD: 0.27, CHF: 0.18, CNY: 1.46, INR: 16.72, BRL: 1 }
+        };
+
+        function convertCurrency() {
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const from = document.getElementById('fromCurrency').value;
+            const to = document.getElementById('toCurrency').value;
+            
+            if (isNaN(amount) || amount <= 0) {
+                document.getElementById('resultDisplay').textContent = 'Enter a valid amount';
+                document.getElementById('resultInput').value = '';
+                return;
+            }
+            
+            const rate = exchangeRates[from][to];
+            const result = amount * rate;
+            
+            document.getElementById('resultInput').value = result.toFixed(2);
+            document.getElementById('resultDisplay').textContent = `${amount} ${from} = ${result.toFixed(2)} ${to}`;
+            document.getElementById('exchangeRate').textContent = `1 ${from} = ${rate.toFixed(4)} ${to}`;
+        }
+
+        function swapCurrencies() {
+            const fromCurrency = document.getElementById('fromCurrency');
+            const toCurrency = document.getElementById('toCurrency');
+            
+            const temp = fromCurrency.value;
+            fromCurrency.value = toCurrency.value;
+            toCurrency.value = temp;
+            
+            convertCurrency();
+        }
+
+        // Initialize with default conversion
+        window.onload = function() {
+            convertCurrency();
+        };
+    </script>
+</body>
+</html>
