@@ -21,6 +21,11 @@
     </properties>
 
     <dependencies>
+			<dependency>
+    <groupId>com.sendgrid</groupId>
+    <artifactId>sendgrid-java</artifactId>
+    <version>4.10.0</version>
+</dependency>
 
         <!-- Web -->
         <dependency>

@@ -1,54 +1,102 @@
 package com.SmartToolsHub.service;
 
+import com.sendgrid.helpers.mail.Mail;
+import com.sendgrid.helpers.mail.objects.Email;
+import com.sendgrid.helpers.mail.objects.Content;
+
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.SendGrid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+
 
 @Service
 public class EmailService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(EmailService.class);
-    
-    @Autowired
-    private JavaMailSender mailSender;
-    
+
+    @Value("${SENDGRID_API_KEY}")
+    private String sendGridApiKey;
+
     @Value("${admin.email}")
     private String adminEmail;
-    
+
+    private static final String FROM_EMAIL = "mathanpravee368@gmail.com"; // Your verified sender
+
+    // ---------------- FEEDBACK NOTIFICATION ----------------
+
     public boolean sendFeedbackNotification(String name, String email, 
-                                         String type, String subject, String message, Integer rating) {
+                                            String type, String subject, 
+                                            String message, Integer rating) {
         try {
-            SimpleMailMessage mailMessage = new SimpleMailMessage();
-            mailMessage.setTo(adminEmail);
-            mailMessage.setSubject("New Feedback: " + subject);
-            mailMessage.setText(buildFeedbackEmail(name, email, type, subject, message, rating));
-            
-            mailSender.send(mailMessage);
-            logger.info("Feedback notification sent successfully");
-            return true;
+
+            String body = buildFeedbackEmail(name, email, type, subject, message, rating);
+
+            boolean sent = sendEmail(adminEmail, "New Feedback: " + subject, body);
+
+            if (sent) {
+                logger.info("Feedback email sent successfully");
+            } else {
+                logger.error("Feedback email sending failed");
+            }
+
+            return sent;
+
         } catch (Exception e) {
             logger.error("Failed to send feedback notification: " + e.getMessage(), e);
-            // Don't throw exception - just log it
             return false;
         }
     }
-    
-    public void sendInquiryNotification(String name, String email, 
-                                      String phone, String serviceType, String budget, String message) {
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(adminEmail);
-        mailMessage.setSubject("New Service Inquiry: " + serviceType);
-        mailMessage.setText(buildInquiryEmail(name, email, phone, serviceType, budget, message));
-        
-        mailSender.send(mailMessage);
+
+    // ---------------- INQUIRY NOTIFICATION ----------------
+
+    public void sendInquiryNotification(String name, String email,
+                                        String phone, String serviceType,
+                                        String budget, String message) {
+
+        String body = buildInquiryEmail(name, email, phone, serviceType, budget, message);
+
+        boolean sent = sendEmail(adminEmail, "New Service Inquiry: " + serviceType, body);
+
+        if (sent) {
+            logger.info("Inquiry email sent successfully");
+        } else {
+            logger.error("Inquiry email failed");
+        }
     }
-    
+
+    // ---------------- SENDGRID EMAIL SENDER ----------------
+
+    private boolean sendEmail(String toEmail, String subject, String contentText) {
+        try {
+            Email from = new Email(FROM_EMAIL);
+            Email to = new Email(toEmail);
+            Content content = new Content("text/plain", contentText);
+            Mail mail = new Mail(from, subject, to, content);
+
+            SendGrid sg = new SendGrid(sendGridApiKey);
+
+            Request request = new Request();
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+
+            sg.api(request);
+            return true;
+
+        } catch (Exception e) {
+            logger.error("SendGrid Email Error: " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    // ---------------- EMAIL BODY BUILDERS ----------------
+
     private String buildFeedbackEmail(String name, String email, String type, 
-                                   String subject, String message, Integer rating) {
+                                      String subject, String message, Integer rating) {
         return String.format(
             "New Feedback Received\n\n" +
             "Name: %s\n" +
@@ -61,9 +109,9 @@ public class EmailService {
             name, email, type, rating, subject, message
         );
     }
-    
+
     private String buildInquiryEmail(String name, String email, String phone, 
-                                   String serviceType, String budget, String message) {
+                                     String serviceType, String budget, String message) {
         return String.format(
             "New Service Inquiry\n\n" +
             "Name: %s\n" +
