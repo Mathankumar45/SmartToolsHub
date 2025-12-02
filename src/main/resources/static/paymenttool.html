@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SmartToolsHub — Payments</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+
+<style>
+  :root{
+    --bg: #f3f8ff;
+    --panel: #ffffff;
+    --muted: #6b7280;
+    --blue-900: #06257a;
+    --blue-700: #0b5cff;
+    --blue-600: #1976ff;
+    --accent: #0b5cff;
+    --glass: rgba(255,255,255,0.7);
+    --radius: 14px;
+    --maxw: 1180px;
+  }
+  html,body{height:100%;margin:0;font-family:Inter, "Segoe UI", Roboto, Arial, sans-serif;background:linear-gradient(180deg,#eaf4ff,var(--bg));color:#081427;}
+  .wrap{max-width:var(--maxw);margin:26px auto;padding:16px;}
+  .app{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start;}
+  .sidebar{background:linear-gradient(180deg,var(--blue-700),var(--blue-900));color:white;padding:18px;border-radius:12px;min-height:calc(100vh - 56px);box-shadow:0 12px 36px rgba(11,92,255,0.12);}
+  .brand{display:flex;gap:12px;align-items:center;margin-bottom:12px;}
+  .logo{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:18px;background:linear-gradient(135deg,#2b6cff,#0b5cff);box-shadow:0 8px 26px rgba(11,92,255,0.16);}
+  .brand h2{margin:0;font-size:18px;}
+  .brand p.small{margin:0;color:rgba(255,255,255,0.88);font-size:13px;margin-top:4px;}
+  .nav{margin-top:18px;display:flex;flex-direction:column;gap:8px;}
+  .nav a{color:white;text-decoration:none;padding:10px;border-radius:8px;font-weight:700;display:block;}
+  .nav a:hover{background:rgba(255,255,255,0.06);}
+  .section-title{margin-top:18px;color:rgba(255,255,255,0.9);font-weight:700;font-size:13px;}
+  .panel{background:var(--panel);border-radius:12px;box-shadow:0 12px 30px rgba(9,30,66,0.06);padding:12px;display:flex;flex-direction:column;height:calc(100vh - 56px);}
+  .panel-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid #eef6ff;}
+  .title{font-weight:900;color:var(--blue-700);font-size:18px;}
+  .subtitle{font-size:13px;color:var(--muted);margin-top:4px;}
+  .actions{display:flex;gap:8px;align-items:center;}
+  .btn{padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:800;}
+  .btn.primary{background:var(--blue-700);color:white;border:none;box-shadow:0 8px 20px rgba(11,92,255,0.12);}
+  .container-card{margin:18px;padding:20px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);box-shadow:0 8px 30px rgba(9,30,66,0.04);max-width:820px;}
+  /* Payment UI */
+  .pay-grid{display:grid;grid-template-columns:1fr;gap:12px;max-width:540px;margin:auto;}
+  label{font-size:13px;color:var(--muted);font-weight:700;}
+  select,input{width:100%;padding:12px;border-radius:10px;border:1px solid #e6eefb;font-size:15px;background:white;}
+  .pay-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+  .pay-btn{flex:1;padding:12px;border-radius:10px;background:#0b5cff;color:white;border:none;font-weight:800;cursor:pointer;}
+  .confirm-btn{flex:1;padding:12px;border-radius:10px;background:#28a745;color:white;border:none;font-weight:800;cursor:pointer;}
+  .small-muted{font-size:13px;color:var(--muted);}
+  .status-box{margin-top:14px;padding:12px;border-radius:8px;background:#f1f7ff;border:1px solid #e1efff;color:#08306d;font-weight:700;}
+  .hint{font-size:13px;color:#475569;}
+  @media (max-width:980px){.app{grid-template-columns:1fr}.panel{height:auto;min-height:80vh}.sidebar{position:relative;height:auto}}
+</style>
+
+<!-- Razorpay checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="SmartToolsHub menu">
+      <div class="brand">
+        <div class="logo">SH</div>
+        <div>
+          <h2>SmartToolsHub</h2>
+          <p class="small">Payments & developer tools</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="main navigation">
+        <a href="/index.html">Dashboard</a>
+        <a href="/resumebuilder.html">Resume Builder</a>
+        <a href="/resumetemplates.html">Resume Templates</a>
+        <a href="/pdfmerge.html">PDF Merger</a>
+        <a href="/fileconverter.html">File Converter</a>
+        <a href="/wordcounter.html">Word Counter</a>
+        <a href="/datecalculator.html">Date Calculator</a>
+        <a href="/ai.html">AI Tools</a>
+        <a href="/payment.html" style="background:rgba(255,255,255,0.06);">Payments</a>
+      </nav>
+
+      <div class="section-title">Account</div>
+      <div style="margin-top:12px;color:rgba(255,255,255,0.9);font-size:13px;">
+        <div id="userEmailDisplay">Not signed in</div>
+      </div>
+    </aside>
+
+    <!-- MAIN PANEL -->
+    <main class="panel" role="main">
+      <div class="panel-header">
+        <div>
+          <div class="title">Payments & Recharge</div>
+          <div class="subtitle">Secure payments via Razorpay — virtual recharge (manual processing) with user confirm</div>
+        </div>
+
+        <div class="actions">
+          <button id="loginBtn" class="btn ghost">Login</button>
+          <button id="helpBtn" class="btn ghost">Help</button>
+        </div>
+      </div>
+
+      <div class="container-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="flex:1">
+            <h3 style="margin:0;color:var(--blue-700)">Quick Recharge</h3>
+            <div class="hint">Choose service, provider and plan — pay securely. After payment confirm recharge to complete.</div>
+          </div>
+          <div style="min-width:160px;text-align:right">
+            <div class="small-muted">Today</div>
+            <div style="font-weight:900;color:var(--blue-700)">Status: Test Mode</div>
+          </div>
+        </div>
+
+        <hr style="margin:16px 0;border:none;border-top:1px solid #eef6ff"/>
+
+        <div class="pay-grid" id="paymentTool">
+
+          <!-- Service -->
+          <div>
+            <label for="service">Service</label>
+            <select id="service">
+              <option value="">Select Service</option>
+              <option value="MOBILE">Mobile Recharge</option>
+              <option value="DTH">DTH Recharge</option>
+              <option value="GAS">Gas</option>
+              <option value="ELECTRICITY">Electricity Bill</option>
+              <option value="WATER">Water Bill</option>
+              <option value="BROADBAND">Broadband</option>
+              <option value="FASTAG">FASTag</option>
+            </select>
+          </div>
+
+          <!-- Provider -->
+          <div>
+            <label for="provider">Provider</label>
+            <select id="provider"><option value="">Select Provider</option></select>
+          </div>
+
+          <!-- Account / Mobile -->
+          <div>
+            <label for="account">Account / Mobile / Policy</label>
+            <input id="account" type="text" placeholder="Enter number / account / policy" />
+          </div>
+
+          <!-- Email -->
+          <div>
+            <label for="email">Email (for receipt)</label>
+            <input id="email" type="email" placeholder="you@example.com" />
+          </div>
+
+          <!-- Plans -->
+          <div>
+            <label for="plans">Plan / Amount</label>
+            <select id="plans"><option value="">Select Plan</option></select>
+          </div>
+
+          <!-- Amount -->
+          <div>
+            <label for="amount">Amount (INR)</label>
+            <input id="amount" type="number" readonly placeholder="Amount" />
+          </div>
+
+          <!-- Buttons -->
+          <div class="pay-actions">
+            <button id="payBtn" class="pay-btn">Pay Now (Razorpay)</button>
+            <button id="confirmBtn" class="confirm-btn" style="display:none">Confirm Recharge</button>
+          </div>
+
+          <!-- Status -->
+          <div id="statusBox" class="status-box" style="display:none"></div>
+        </div>
+
+      </div>
+
+      <div style="margin-top:16px;">
+        <div class="container-card">
+          <h4 style="margin:0 0 10px 0;color:var(--blue-700)">Notes</h4>
+          <ul style="margin:10px 0;color:var(--muted)">
+            <li>Using Razorpay test key — no real money will be charged in test mode.</li>
+            <li>Recharge itself is handled manually by you — clicking <strong>Confirm Recharge</strong> marks it completed and sends email.</li>
+            <li>Make sure to enter a valid email to receive receipts.</li>
+          </ul>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<script>
+/* ===========================
+   Payment Page JS (no voice)
+   =========================== */
+
+/* Local providers & plans (static) */
+const PROVIDERS = {
+  MOBILE: ["Airtel","Jio","VI","BSNL"],
+  DTH: ["Tata Play","Airtel DTH","DishTV","Sun Direct"],
+  GAS: ["Bharat Gas","HP Gas","Indane"],
+  ELECTRICITY: ["TNEB","BESCOM","MSEDCL"],
+  WATER: ["Metro Water","Panchayat Water"],
+  BROADBAND: ["Airtel Fiber","Jio Fiber","ACT Broadband"],
+  FASTAG: ["SBI FASTag","ICICI FASTag","Bank of Baroda FASTag"]
+};
+
+const PLANS = {
+  Airtel: [{name:"₹199 - 28 Days", amount:199},{name:"₹479 - 56 Days", amount:479}],
+  Jio: [{name:"₹149 - 20 Days", amount:149},{name:"₹399 - 28 Days", amount:399}],
+  VI: [{name:"₹199 - 28 Days", amount:199}],
+  BSNL: [{name:"₹108 - 28 Days", amount:108}],
+  "Tata Play": [{name:"₹250 Recharge", amount:250}],
+  "DishTV": [{name:"₹300 Recharge", amount:300}],
+  "Sun Direct": [{name:"₹200 Recharge", amount:200}],
+  "Bharat Gas": [{name:"Cylinder ₹1100", amount:1100}],
+  "Indane": [{name:"Cylinder ₹1120", amount:1120}],
+  TNEB: [{name:"Electricity Bill", amount:500}],
+  BESCOM: [{name:"Electricity Bill", amount:450}],
+  "Jio Fiber": [{name:"₹399 Monthly", amount:399}],
+  "Airtel Fiber": [{name:"₹499 Monthly", amount:499}],
+  "SBI FASTag": [{name:"Recharge ₹300", amount:300}],
+};
+
+/* DOM references */
+const serviceEl = document.getElementById('service');
+const providerEl = document.getElementById('provider');
+const plansEl = document.getElementById('plans');
+const amountEl = document.getElementById('amount');
+const accountEl = document.getElementById('account');
+const emailEl = document.getElementById('email');
+const payBtn = document.getElementById('payBtn');
+const confirmBtn = document.getElementById('confirmBtn');
+const statusBox = document.getElementById('statusBox');
+
+/* Helper: populate providers when service changes */
+serviceEl.addEventListener('change', () => {
+  const s = serviceEl.value;
+  providerEl.innerHTML = '<option value="">Select Provider</option>';
+  plansEl.innerHTML = '<option value="">Select Plan</option>';
+  amountEl.value = '';
+  if (!s) return;
+  (PROVIDERS[s] || []).forEach(p => {
+    const o = document.createElement('option'); o.value = p; o.textContent = p;
+    providerEl.appendChild(o);
+  });
+});
+
+/* When provider selected, populate plans */
+providerEl.addEventListener('change', () => {
+  const p = providerEl.value;
+  plansEl.innerHTML = '<option value="">Select Plan</option>';
+  amountEl.value = '';
+  if (!p) return;
+  (PLANS[p] || []).forEach(pl => {
+    const o = document.createElement('option'); o.value = pl.amount; o.textContent = pl.name; o.dataset.name = pl.name;
+    plansEl.appendChild(o);
+  });
+});
+
+/* Set amount when plan chosen */
+plansEl.addEventListener('change', () => {
+  amountEl.value = plansEl.value || '';
+});
+
+/* Utility: show status */
+function showStatus(html, showConfirm=false) {
+  statusBox.style.display = 'block';
+  statusBox.innerHTML = html;
+  confirmBtn.style.display = showConfirm ? 'inline-block' : 'none';
+}
+
+/* Clear status */
+function clearStatus() {
+  statusBox.style.display = 'none';
+  statusBox.innerHTML = '';
+  confirmBtn.style.display = 'none';
+}
+
+/* Save transaction id helper */
+function saveTxnId(txnId) {
+  try { sessionStorage.setItem('smarthub_txnId', txnId); } catch(e){}
+}
+function readTxnId() {
+  try { return sessionStorage.getItem('smarthub_txnId'); } catch(e){ return null; }
+}
+
+/* --------- Create Order & Open Razorpay --------- */
+payBtn.addEventListener('click', async () => {
+  clearStatus();
+
+  const service = serviceEl.value;
+  const provider = providerEl.value;
+  const account = accountEl.value && accountEl.value.trim();
+  const amount = parseInt(amountEl.value || 0, 10);
+  const email = emailEl.value && emailEl.value.trim();
+
+  if(!service || !provider || !account || !amount) {
+    alert('Please complete all fields (service, provider, account, plan).');
+    return;
+  }
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert('Please enter a valid email address for receipt.');
+    emailEl.focus();
+    return;
+  }
+
+  // create order on server
+  try {
+    payBtn.disabled = true;
+    payBtn.textContent = 'Creating order...';
+
+    const payload = {
+      service: service,
+      provider: provider,
+      number: account,
+      amount: amount,
+      email: email
+    };
+
+    const resp = await fetch('/createPaymentOrder', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    const data = await resp.json();
+    if(!data || !data.orderId) {
+      payBtn.disabled = false;
+      payBtn.textContent = 'Pay Now (Razorpay)';
+      showStatus('Failed to create order. Try again or check server logs.');
+      return;
+    }
+
+    // store txn for confirm flow
+    if(data.transactionId) saveTxnId(data.transactionId);
+
+    // open Razorpay
+    const options = {
+      key: data.key,            // razorpay key
+      amount: data.amount,     // in paise
+      currency: 'INR',
+      name: 'SmartToolsHub',
+      description: service + ' Payment',
+      order_id: data.orderId,
+      prefill: {
+        email: email,
+        contact: account
+      },
+      handler: function(response) {
+        // response -> { razorpay_payment_id, razorpay_order_id, razorpay_signature }
+        onRazorpaySuccess(response);
+      },
+      modal: {
+        ondismiss: function() {
+          payBtn.disabled = false;
+          payBtn.textContent = 'Pay Now (Razorpay)';
+          showStatus('Payment popup closed. No payment made.');
+        }
+      }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+
+    payBtn.disabled = false;
+    payBtn.textContent = 'Pay Now (Razorpay)';
+
+  } catch(err) {
+    console.error(err);
+    payBtn.disabled = false;
+    payBtn.textContent = 'Pay Now (Razorpay)';
+    showStatus('Error creating order: ' + (err.message||err));
+  }
+});
+
+/* --------- After Razorpay completes (client received response) --------- */
+async function onRazorpaySuccess(r) {
+  // send the razorpay response to backend verify endpoint
+  try {
+    showStatus('Verifying payment...');
+
+    const resp = await fetch('/verifyPayment', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(r)
+    });
+    const data = await resp.json();
+
+    if(!data) {
+      showStatus('Server verification failed. Try again later.');
+      return;
+    }
+
+    // expected backend to return { status: "SUCCESS"|"FAILED", transactionId: "..." }
+    if(data.status && data.status.toUpperCase().startsWith('PAYMENT')) {
+      // if your backend returns "Payment Successful" etc — normalize
+      // But we rely on transactionId presence.
+    }
+
+    const txnId = data.transactionId || readTxnId();
+
+    showStatus(
+      '<div>Payment verified: <strong>' + (data.status || 'SUCCESS') + '</strong></div>' +
+      '<div>Transaction ID: <strong>' + (txnId || '—') + '</strong></div>' +
+      '<div class="small-muted">Click Confirm Recharge to mark as completed and send receipt email.</div>',
+      true
+    );
+
+    // keep txn id stored
+    if(txnId) saveTxnId(txnId);
+
+  } catch(err) {
+    console.error(err);
+    showStatus('Verification error: ' + (err.message||err));
+  }
+}
+
+/* --------- Confirm Recharge (customer clicks) --------- */
+confirmBtn.addEventListener('click', async () => {
+  confirmBtn.disabled = true;
+  confirmBtn.textContent = 'Confirming...';
+
+  const txn = readTxnId();
+  if(!txn) {
+    alert('Transaction id missing. Please reload or check order history.');
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = 'Confirm Recharge';
+    return;
+  }
+
+  try {
+    const resp = await fetch('/confirmRecharge?transactionId=' + encodeURIComponent(txn), { method: 'POST' });
+    const data = await resp.json();
+    showStatus('<div>' + (data.message || 'Recharge marked completed') + '</div>');
+    // clear stored txn after confirmation
+    try { sessionStorage.removeItem('smarthub_txnId'); } catch(e){}
+    confirmBtn.style.display = 'none';
+  } catch(err) {
+    console.error(err);
+    alert('Failed to confirm recharge: ' + (err.message||err));
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = 'Confirm Recharge';
+  }
+});
+
+/* Optional: prefill user email if logged in (call your /api/auth/session) */
+(async function tryPrefillSession() {
+  try {
+    const r = await fetch('/api/auth/session');
+    if(!r.ok) return;
+    const j = await r.json();
+    if(j && j.email) {
+      document.getElementById('userEmailDisplay').textContent = j.email;
+      if(!emailEl.value) emailEl.value = j.email;
+    }
+  } catch(e){}
+})();
+
+</script>
+</body>
+</html>

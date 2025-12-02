@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SmartToolsHub — Advanced AI (Blue Theme)</title>
+
+<!-- Marked (markdown) + DOMPurify (sanitization) + highlight.js (syntax highlight) -->
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@2.4.0/dist/purify.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+
+<style>
+  /* ============================
+     SmartToolsHub — Blue Theme
+     ============================ */
+
+  :root{
+    --bg: #f3f8ff;
+    --panel: #ffffff;
+    --muted: #6b7280;
+    --blue-900: #06257a;
+    --blue-700: #0b5cff;
+    --blue-600: #1976ff;
+    --accent: #0b5cff;
+    --glass: rgba(255,255,255,0.7);
+    --radius: 14px;
+    --maxw: 1180px;
+  }
+
+  html, body {
+    height:100%;
+    margin:0;
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: linear-gradient(180deg, #eaf4ff, var(--bg));
+    color: #081427;
+  }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 26px auto;
+    padding: 16px;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  /* ---------------- Sidebar ---------------- */
+  .sidebar {
+    background: linear-gradient(180deg, var(--blue-700), var(--blue-900));
+    color: white;
+    padding: 18px;
+    border-radius: 12px;
+    min-height: calc(100vh - 56px);
+    box-shadow: 0 12px 36px rgba(11,92,255,0.12);
+  }
+
+  .brand {
+    display:flex; gap:12px; align-items:center; margin-bottom:12px;
+  }
+  .logo {
+    width:46px; height:46px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; color:white; font-size:18px;
+    background: linear-gradient(135deg, #2b6cff, #0b5cff);
+    box-shadow: 0 8px 26px rgba(11,92,255,0.16);
+  }
+  .brand h2 { margin:0; font-size:18px; }
+  .brand p.small { margin:0; color:rgba(255,255,255,0.88); font-size:13px; margin-top:4px; }
+
+  .nav { margin-top:18px; display:flex; flex-direction:column; gap:8px; }
+  .nav a {
+    color: white;
+    text-decoration:none;
+    padding:10px;
+    border-radius:8px;
+    font-weight:700;
+    display:block;
+  }
+  .nav a:hover { background: rgba(255,255,255,0.06); }
+
+  .section-title { margin-top:18px; color:rgba(255,255,255,0.9); font-weight:700; font-size:13px; }
+
+  .sidebar .small { color: rgba(255,255,255,0.9); font-size:13px; }
+
+  /* ---------------- Main Panel ---------------- */
+  .panel {
+    background: var(--panel);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(9,30,66,0.06);
+    padding: 12px;
+    display:flex;
+    flex-direction:column;
+    height: calc(100vh - 56px);
+  }
+
+  .panel-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding:8px 12px;
+    border-bottom:1px solid #eef6ff;
+  }
+
+  .title {
+    font-weight:900;
+    color: var(--blue-700);
+    font-size:18px;
+  }
+  .subtitle {
+    font-size:13px;
+    color: var(--muted);
+    margin-top:4px;
+  }
+
+  .actions { display:flex; gap:8px; align-items:center; }
+
+  .modes { display:flex; gap:8px; align-items:center; }
+  .mode-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    padding:8px 12px;
+    border-radius: 10px;
+    font-weight:800;
+    color: var(--blue-700);
+    cursor:pointer;
+  }
+  .mode-btn.active {
+    background: linear-gradient(90deg, rgba(11,92,255,0.08), rgba(25,118,255,0.03));
+    border: 1px solid rgba(11,92,255,0.12);
+    box-shadow: 0 8px 20px rgba(11,92,255,0.06);
+  }
+
+  .btn {
+    padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:800;
+  }
+  .btn.primary {
+    background: var(--blue-700); color:white; border:none; box-shadow: 0 8px 20px rgba(11,92,255,0.12);
+  }
+  .btn.ghost {
+    background: transparent; border:1px solid #e8f3ff; color: var(--blue-700);
+  }
+  .btn.warn { background: #ef4444; color:white; }
+
+  /* ---------------- Chat area ---------------- */
+  .chat-area { display:flex; flex-direction:column; gap:10px; padding:12px; flex:1; }
+  .messages {
+    flex:1;
+    overflow:auto;
+    padding:12px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    border-radius:10px;
+    background: linear-gradient(180deg, rgba(11,92,255,0.012), rgba(255,255,255,0.02));
+  }
+
+  .message-row { display:flex; gap:12px; align-items:flex-start; max-width:100%; }
+  .message-row.user { justify-content:flex-end; }
+  .avatar {
+    width:44px; height:44px; border-radius:10px; display:flex; align-items:center; justify-content:center; color:white; font-weight:800;
+  }
+  .avatar.user { background: linear-gradient(135deg, var(--blue-700), var(--blue-600)); }
+  .avatar.bot { background: linear-gradient(135deg,#0b1728,#0f3a6b); }
+
+  .bubble {
+    padding:12px 14px;
+    border-radius:12px;
+    max-width:82%;
+    white-space:pre-wrap;
+    word-break:break-word;
+    line-height:1.45;
+    font-size:14px;
+    box-shadow: 0 8px 24px rgba(9,30,66,0.04);
+    position:relative;
+  }
+  .bubble.user { background: linear-gradient(180deg, var(--blue-700), var(--blue-600)); color:white; border-bottom-right-radius:6px; }
+  .bubble.bot { background: #fbfeff; color: #071427; border:1px solid #e6f3ff; border-bottom-left-radius:6px; }
+
+  .meta {
+    display:flex; gap:8px; align-items:center; margin-top:8px; font-size:12px; color:var(--muted);
+  }
+
+  /* ---------------- Composer ---------------- */
+  .composer {
+    display:flex;
+    gap:12px;
+    align-items:flex-end;
+    padding-top:8px;
+    border-top:1px dashed #eef6ff;
+  }
+  .composer-left { flex:1; }
+  .input {
+    border-radius:10px;
+    border:1px solid #eef6ff;
+    background:#fbfeff;
+    padding:12px;
+    min-height:58px;
+    max-height:220px;
+    overflow:auto;
+  }
+  .input[contenteditable="true"] { outline:none; }
+
+  .toolbar { display:flex; gap:8px; align-items:center; }
+
+  /* chips */
+  .chips { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .chip {
+    padding:6px 10px;
+    background:#eaf6ff;
+    color:var(--blue-700);
+    border-radius:999px;
+    font-weight:700;
+    cursor:pointer;
+    border:1px solid rgba(11,92,255,0.06);
+  }
+
+  /* file row */
+  .file-row { display:flex; gap:8px; align-items:center; margin-top:8px; }
+
+  /* copy button for code blocks */
+  .copy-btn {
+    position:absolute;
+    right:8px;
+    top:8px;
+    background: rgba(11,92,255,0.06);
+    border: none;
+    color: var(--blue-700);
+    padding:6px 8px;
+    border-radius:8px;
+    font-weight:700;
+    cursor:pointer;
+  }
+
+  /* highlight.js custom adjustments - SmartToolsHub Blue Theme */
+  /* We use the default github style but override some colors to match blue theme */
+  pre code {
+    display:block; padding:12px; border-radius:8px; overflow:auto; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+    background: #0b1220; color: #dbeafe; font-size:13px;
+  }
+  /* copy area inside pre */
+  pre { position:relative; margin:0; }
+
+  /* small screens */
+  @media (max-width: 980px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { height:auto; position:relative; }
+    .panel { height:auto; min-height:80vh; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="SmartToolsHub menu">
+      <div class="brand">
+        <div class="logo">SH</div>
+        <div>
+          <h2>SmartToolsHub</h2>
+          <p class="small">AI tools & developer utilities</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="main navigation">
+        <a href="/index.html">Dashboard</a>
+        <a href="/resumebuilder.html">Resume Builder</a>
+        <a href="/resumetemplates.html">Resume Templates</a>
+        <a href="/pdfmerge.html">PDF Merger</a>
+        <a href="/fileconverter.html">File Converter</a>
+        <a href="/wordcounter.html">Word Counter</a>
+        <a href="/datecalculator.html">Date Calculator</a>
+        <a href="/ai.html" style="font-weight:900;">AI Tools</a>
+      </nav>
+
+      <div class="section-title">Session</div>
+
+      <div style="margin-top:10px;">
+        <div class="small">Local chat storage</div>
+        <button id="restoreBtn" class="btn ghost" style="width:100%; margin-top:8px;">Restore last session</button>
+        <button id="clearAllBtn" class="btn warn" style="width:100%; margin-top:8px;">Delete all local chats</button>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div class="small">Export / Import</div>
+        <button id="exportBtn" class="btn ghost" style="width:100%; margin-top:8px;">Export Chat (.txt)</button>
+        <label style="display:block; margin-top:10px;">
+          <input id="fileIn" type="file" accept=".txt,.md,.json,.java,.py,.js,.html,.css" style="display:none;">
+          <button id="fileBtn" class="btn ghost" style="width:100%;">Upload Text File</button>
+        </label>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div class="small">Settings</div>
+        <div style="margin-top:8px;">
+          <label class="small">Voice Output</label><br/>
+          <input id="voiceToggle" type="checkbox" checked /> <span class="small">Enabled</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN PANEL -->
+    <main class="panel" role="main">
+      <div class="panel-header">
+        <div>
+          <div class="title">Smart Chat — Advanced</div>
+          <div class="subtitle">Modes: Coding, General, Summary, Translate — outputs rendered in Markdown</div>
+        </div>
+
+        <div class="actions">
+          <div class="modes" role="tablist" aria-label="modes">
+            <button class="mode-btn active" data-mode="general">General</button>
+            <button class="mode-btn" data-mode="coding">Coding</button>
+            <button class="mode-btn" data-mode="summary">Summary</button>
+            <button class="mode-btn" data-mode="translate">Translate</button>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; margin-left:8px;">
+            <button id="themeBtn" class="btn ghost">Toggle Theme</button>
+            <button id="clearBtn" class="btn ghost">Clear</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-area">
+        <div id="messages" class="messages" role="log" aria-live="polite"></div>
+
+        <!-- chips -->
+        <div class="chips" id="chips">
+          <div class="chip" data-s="Explain this concept in simple terms.">Explain Simply</div>
+          <div class="chip" data-s="Provide example code in Java">Example Code (Java)</div>
+          <div class="chip" data-s="Summarize the following text in 3 bullet points.">Summarize</div>
+          <div class="chip" data-s="Translate this text to Spanish">Translate to Spanish</div>
+          <div class="chip" data-s="Find bugs and suggest improvements in the following code.">Find Bugs</div>
+        </div>
+
+        <!-- file upload & composer -->
+        <div class="file-row">
+          <input id="fileUpload" type="file" accept=".txt,.md,.java,.py,.js,.json,.html,.css" style="display:none;">
+          <button id="attachBtn" class="btn ghost">Attach File</button>
+          <span id="attachedName" class="small" style="margin-left:8px;"></span>
+        </div>
+
+        <div class="composer">
+          <div class="composer-left">
+            <div id="input" class="input" contenteditable="true" role="textbox" aria-label="Message input" placeholder="Ask anything — Enter to send, Shift+Enter newline"></div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+              <div class="small">Enter to send • Shift+Enter for newline</div>
+              <div>
+                <button id="voiceBtn" class="btn ghost" title="Voice input">🎤</button>
+                <button id="sendBtn" class="btn primary">Send</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="toolbar">
+            <!-- reserved for extra tools -->
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script>
+/* ============================
+   SmartToolsHub Advanced AI JS
+   ============================ */
+
+/* CONFIG */
+const API_CHAT = '/api/ai/chat';   // endpoint for chat
+const API_GENERIC = '/api/ai';     // generic endpoint (action-based)
+const STORAGE_KEY = 'smarthub_ai_v3';
+const MAX_HISTORY = 1000;
+
+/* State */
+let state = {
+  history: loadHistory() || [],
+  currentMode: 'general',
+  attachedFileContent: null,
+  attachedFileName: '',
+  voiceEnabled: true,
+  autoScrollLock: false,
+  isProcessing: false,
+};
+
+/* DOM */
+const messagesEl = document.getElementById('messages');
+const inputEl = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+const modeBtns = document.querySelectorAll('.mode-btn');
+const chips = document.querySelectorAll('.chip');
+const attachBtn = document.getElementById('attachBtn');
+const fileUpload = document.getElementById('fileUpload');
+const attachedName = document.getElementById('attachedName');
+const voiceBtn = document.getElementById('voiceBtn');
+const voiceToggle = document.getElementById('voiceToggle');
+const exportBtn = document.getElementById('exportBtn');
+const clearAllBtn = document.getElementById('clearAllBtn');
+const restoreBtn = document.getElementById('restoreBtn');
+const themeBtn = document.getElementById('themeBtn');
+const clearBtn = document.getElementById('clearBtn');
+
+/* Utilities */
+function uid(prefix='id') { return prefix + '-' + Math.random().toString(36).slice(2,9); }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function escapeHtml(s){ return s ? s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') : ''; }
+
+/* Markdown + highlight helpers */
+function renderMarkdown(md){
+  try {
+    const html = marked.parse(md || '', {gfm:true, breaks:true});
+    return DOMPurify.sanitize(html, {USE_PROFILES: {html: true}});
+  } catch(e) { return escapeHtml(md || ''); }
+}
+function highlightAllIn(el){
+  try {
+    el.querySelectorAll('pre code').forEach(block => hljs.highlightElement(block));
+  } catch(e){}
+}
+
+/* Storage */
+function saveHistory(){
+  try {
+    const minimal = state.history.map(h => ({ id:h.id, who:h.who, text:h.text, mode:h.mode, ts:h.ts }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(minimal));
+  } catch(e){ console.warn('save failed', e); }
+}
+function loadHistory(){
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return [];
+    return JSON.parse(raw);
+  } catch(e){ return []; }
+}
+
+/* Auto scroll lock */
+messagesEl.addEventListener('scroll', () => {
+  const nearBottom = messagesEl.scrollTop + messagesEl.clientHeight >= messagesEl.scrollHeight - 48;
+  state.autoScrollLock = !nearBottom;
+});
+
+/* Initialize */
+document.addEventListener('DOMContentLoaded', () => {
+  // render saved history
+  if(state.history && state.history.length){
+    state.history.forEach(m => appendMessageToDOM(m, false));
+    safeScrollToBottom();
+  } else {
+    const welcome = makeMsg('bot', 'Hello — I am Smart Chatbot. I can summarize, explain code, and help with writing. Choose a mode and ask away!', 'general');
+    appendMessageToDOM(welcome, true);
+  }
+});
+
+/* Mode buttons */
+modeBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    modeBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    state.currentMode = btn.dataset.mode;
+    document.querySelector('.subtitle').textContent = `Mode: ${btn.textContent} • Outputs rendered as Markdown (code blocks highlighted)`;
+  });
+});
+
+/* Chips quick prompts */
+chips.forEach(c => c.addEventListener('click', () => {
+  const s = c.dataset.s;
+  setInputText(s);
+  inputEl.focus();
+}));
+
+/* File attach */
+attachBtn.addEventListener('click', ()=> fileUpload.click());
+fileUpload.addEventListener('change', handleFileUpload);
+
+/* Send handlers */
+sendBtn.addEventListener('click', onSendClicked);
+inputEl.addEventListener('keydown', (e) => {
+  if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); onSendClicked(); }
+});
+
+/* Voice controls */
+voiceBtn.addEventListener('click', startVoiceInput);
+if(voiceToggle) voiceToggle.addEventListener('change', e => state.voiceEnabled = e.target.checked);
+
+/* Export / clear */
+exportBtn.addEventListener('click', exportChat);
+clearAllBtn.addEventListener('click', ()=> {
+  if(confirm('Delete all saved chat history from localStorage?')) { localStorage.removeItem(STORAGE_KEY); state.history=[]; messagesEl.innerHTML=''; }
+});
+restoreBtn.addEventListener('click', ()=> location.reload());
+themeBtn.addEventListener('click', toggleTheme);
+clearBtn.addEventListener('click', ()=> {
+  if(confirm('Clear the current conversation?')) { messagesEl.innerHTML=''; state.history=[]; saveHistory(); }
+});
+
+/* Input helpers */
+function setInputText(txt){ inputEl.innerText = txt; placeCaretAtEnd(inputEl); }
+function getInputText(){ return inputEl.innerText.trim(); }
+function placeCaretAtEnd(el){ el.focus(); if(window.getSelection && document.createRange){ const range=document.createRange(); range.selectNodeContents(el); range.collapse(false); const sel=window.getSelection(); sel.removeAllRanges(); sel.addRange(range); } }
+
+/* Message helpers */
+function makeMsg(who, text, mode){
+  return { id: uid('m'), who, text, mode: mode || state.currentMode, ts: Date.now() };
+}
+
+/* Append message to DOM and optionally save */
+function appendMessageToDOM(msg, save=true){
+  const row = document.createElement('div');
+  row.className = 'message-row ' + (msg.who === 'user' ? 'user' : 'bot');
+  row.id = msg.id;
+
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar ' + (msg.who === 'user' ? 'user' : 'bot');
+  avatar.textContent = (msg.who === 'user' ? 'U' : 'AI');
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble ' + (msg.who === 'user' ? 'user' : 'bot');
+
+  if(msg.who === 'bot'){
+    bubble.innerHTML = renderMarkdown(msg.text || '');
+    // highlight code after insertion
+    setTimeout(()=> highlightAllIn(bubble), 30);
+  } else {
+    bubble.textContent = msg.text;
+  }
+
+  // meta row (time + copy)
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  const time = document.createElement('div');
+  time.className = 'small';
+  time.textContent = new Date(msg.ts).toLocaleString();
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'copy-btn';
+  copyBtn.textContent = 'Copy';
+  copyBtn.title = 'Copy reply text';
+  copyBtn.style.display = 'inline-block';
+  copyBtn.addEventListener('click', ()=> {
+    // if code blocks exist, copy code; else copy visible text
+    const codes = bubble.querySelectorAll('pre code');
+    if(codes.length === 1){
+      copyTextToClipboard(codes[0].innerText);
+    } else if(codes.length > 1) {
+      const all = Array.from(codes).map(c=>c.innerText).join('\\n\\n');
+      copyTextToClipboard(all);
+    } else {
+      copyTextToClipboard(bubble.innerText);
+    }
+    copyBtn.textContent = 'Copied ✓';
+    setTimeout(()=> copyBtn.textContent = 'Copy', 1400);
+  });
+
+  meta.appendChild(time);
+  meta.appendChild(copyBtn);
+  bubble.appendChild(meta);
+
+  // add per-code-block copy overlays after rendering
+  if(msg.who === 'bot'){
+    setTimeout(()=> {
+      bubble.querySelectorAll('pre').forEach(pre => {
+        // small overlay button inside pre
+        const cbtn = document.createElement('button');
+        cbtn.className = 'copy-btn';
+        cbtn.style.position='absolute';
+        cbtn.style.right='8px';
+        cbtn.style.top='8px';
+        cbtn.textContent = 'Copy code';
+        cbtn.addEventListener('click', ()=> {
+          const codeEl = pre.querySelector('code');
+          if(!codeEl) return;
+          copyTextToClipboard(codeEl.innerText);
+          cbtn.textContent = 'Copied ✓';
+          setTimeout(()=> cbtn.textContent = 'Copy code', 1200);
+        });
+        pre.style.position='relative';
+        pre.appendChild(cbtn);
+      });
+    }, 100);
+  }
+
+  // assemble
+  if(msg.who === 'user'){
+    row.appendChild(bubble);
+    row.appendChild(avatar);
+  } else {
+    row.appendChild(avatar);
+    row.appendChild(bubble);
+  }
+
+  messagesEl.appendChild(row);
+  if(save) {
+    state.history.push(msg);
+    if(state.history.length > MAX_HISTORY) state.history.shift();
+    saveHistory();
+  }
+
+  if(!state.autoScrollLock) safeScrollToBottom();
+}
+
+/* Copy helper */
+function copyTextToClipboard(text){
+  if(!navigator.clipboard){
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); } catch(e){ console.warn('copy failed'); } ta.remove();
+    return;
+  }
+  navigator.clipboard.writeText(text).catch(()=>{});
+}
+
+/* Send flow */
+async function onSendClicked(){
+  if(state.isProcessing) return;
+  const inputText = getInputText();
+  if(!inputText && !state.attachedFileContent) return;
+
+  // Combine attached file if present
+  let finalMessage = inputText || '';
+  if(state.attachedFileContent){
+    finalMessage = (finalMessage ? finalMessage + '\\n\\n' : '') + 'Attached file content:\\n' + state.attachedFileContent;
+    // reset attached file after sending
+    state.attachedFileContent = null;
+    state.attachedFileName = '';
+    attachedName.textContent = '';
+    fileUpload.value = '';
+  }
+
+  // push user message
+  const userMsg = makeMsg('user', finalMessage, state.currentMode);
+  appendMessageToDOM(userMsg, true);
+  setInputText('');
+  placeCaretAtEnd(inputEl);
+
+  // push placeholder bot message
+  const botPending = makeMsg('bot', '...', state.currentMode);
+  botPending.isPending = true;
+  appendMessageToDOM(botPending, true);
+  const pendingId = botPending.id;
+
+  // API call
+  try {
+    state.isProcessing = true;
+    const payload = { message: finalMessage, mode: state.currentMode };
+    const resp = await fetch(API_CHAT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if(!resp.ok){
+      const txt = await resp.text();
+      updatePendingWithError(pendingId, `Server error ${resp.status}: ${txt}`);
+      return;
+    }
+
+    const data = await resp.json();
+    const output = (data?.output ?? 'No response').toString();
+    await revealProgressive(pendingId, output);
+    if(state.voiceEnabled) speakText(output);
+  } catch(err){
+    updatePendingWithError(pendingId, 'Network error: ' + (err.message || err));
+  } finally {
+    state.isProcessing = false;
+  }
+}
+
+/* Update pending with error */
+function updatePendingWithError(id, text){
+  const idx = state.history.findIndex(h => h.id === id);
+  if(idx !== -1){
+    state.history[idx].text = text;
+    delete state.history[idx].isPending;
+    saveHistory();
+  }
+  const el = document.getElementById(id);
+  if(el){
+    const bubble = el.querySelector('.bubble');
+    bubble.textContent = text;
+  }
+}
+
+/* Progressive reveal: type plain text => render markdown */
+async function revealProgressive(pendingId, fullText){
+  const el = document.getElementById(pendingId);
+  if(!el) return;
+  const bubble = el.querySelector('.bubble');
+  if(!bubble) return;
+
+  // Create plain typing version (strip code blocks for speed)
+  const plain = stripMarkdown(fullText);
+  bubble.textContent = '';
+  const cursor = document.createElement('span'); cursor.textContent = '\\u2588';
+  let typed = '';
+
+  for(let i=0;i<plain.length;i++){
+    typed += plain[i];
+    bubble.textContent = typed;
+    bubble.appendChild(cursor);
+    if(!state.autoScrollLock) safeScrollToBottom();
+    await sleep(computeTypingSpeed(plain.length));
+  }
+
+  // Replace with rendered markdown
+  bubble.innerHTML = renderMarkdown(fullText);
+  highlightAllIn(bubble);
+
+  // add copy buttons for code blocks (again)
+  setTimeout(()=> {
+    bubble.querySelectorAll('pre').forEach(pre => {
+      if(pre.querySelector('.copy-btn')) return;
+      const cbtn = document.createElement('button');
+      cbtn.className = 'copy-btn';
+      cbtn.style.position='absolute';
+      cbtn.style.top='8px';
+      cbtn.style.right='8px';
+      cbtn.textContent = 'Copy code';
+      cbtn.addEventListener('click', ()=> {
+        const codeEl = pre.querySelector('code');
+        if(codeEl) copyTextToClipboard(codeEl.innerText);
+        cbtn.textContent = 'Copied ✓';
+        setTimeout(()=> cbtn.textContent = 'Copy code', 1200);
+      });
+      pre.style.position='relative';
+      pre.appendChild(cbtn);
+    });
+  }, 90);
+
+  // Persist update
+  const idx = state.history.findIndex(h => h.id === pendingId);
+  if(idx !== -1){
+    state.history[idx].text = fullText;
+    delete state.history[idx].isPending;
+    saveHistory();
+  }
+
+  if(!state.autoScrollLock) safeScrollToBottom();
+}
+
+/* Compute typing speed */
+function computeTypingSpeed(n){
+  // adapt speed by length; shorter = quicker per char, longer = slightly slower
+  const base = 16 + (600 / Math.sqrt(Math.max(n,20)));
+  return Math.max(6, Math.min(60, Math.round(base)));
+}
+
+/* Very basic markdown stripper for typing */
+function stripMarkdown(md){
+  return md
+    .replace(/```[\\s\\S]*?```/g, '')     // remove fence code
+    .replace(/`([^`]+)`/g, '$1')          // inline code
+    .replace(/\\[(.*?)\\]\\(.*?\\)/g, '$1') // links
+    .replace(/#+\\s?/g, '')               // headers
+    .replace(/>\\s?/g, '')                // blockquotes
+    .replace(/\*{1,2}([^*]+)\*{1,2}/g, '$1')
+    .trim();
+}
+
+/* Safe scroll */
+function safeScrollToBottom(){
+  setTimeout(()=> { messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' }); }, 80);
+}
+
+/* is user scrolled up? */
+function isUserScrolledUp(){
+  return messagesEl.scrollTop + messagesEl.clientHeight < messagesEl.scrollHeight - 80;
+}
+
+/* ---------- Voice input/output ---------- */
+function startVoiceInput(){
+  const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!Recognition){
+    alert('Speech recognition not supported in this browser.');
+    return;
+  }
+  const rec = new Recognition();
+  rec.lang = 'en-US';
+  rec.interimResults = false;
+  rec.maxAlternatives = 1;
+  rec.onresult = (e) => {
+    const txt = e.results[0][0].transcript;
+    setInputText(txt);
+  };
+  rec.onerror = (e) => console.warn('Speech error', e);
+  rec.start();
+}
+
+function speakText(txt){
+  if(!state.voiceEnabled || !('speechSynthesis' in window)) return;
+  const utter = new SpeechSynthesisUtterance(txt);
+  utter.lang = 'en-US';
+  utter.rate = 1;
+  utter.pitch = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+
+/* ---------- File upload ---------- */
+function handleFileUpload(e){
+  const f = e.target.files && e.target.files[0];
+  if(!f) return;
+  attachedName.textContent = f.name;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    state.attachedFileContent = ev.target.result;
+    state.attachedFileName = f.name;
+    attachedName.textContent = f.name;
+  };
+  reader.readAsText(f);
+}
+
+/* ---------- Export chat ---------- */
+function exportChat(){
+  const lines = state.history.map(h => {
+    const who = h.who === 'user' ? 'You' : 'Bot';
+    return who + ': ' + (h.text || '');
+  });
+  const blob = new Blob([lines.join('\\n\\n')], { type:'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'smarthub_chat_' + Date.now() + '.txt';
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+
+/* ---------- Theme toggle: simple inversion for demo ---------- */
+let dark = false;
+function toggleTheme(){
+  dark = !dark;
+  if(dark){
+    document.documentElement.style.setProperty('--bg','#071428');
+    document.documentElement.style.setProperty('--panel','#071428');
+    document.documentElement.style.setProperty('--muted','#9aa4b2');
+    document.body.style.background = '#071428';
+  } else {
+    document.documentElement.style.setProperty('--bg','#f3f8ff');
+    document.documentElement.style.setProperty('--panel','#ffffff');
+    document.documentElement.style.setProperty('--muted','#6b7280');
+    document.body.style.background = '';
+  }
+}
+
+/* ---------- Utilities for input ---------- */
+function setInputText(txt){ inputEl.innerText = txt; placeCaretAtEnd(inputEl); }
+function placeCaretAtEnd(el){
+  el.focus();
+  if(window.getSelection && document.createRange){
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+}
+
+/* ---------- Initialize highlight.js for dynamic code blocks ---------- */
+document.addEventListener('DOMContentLoaded', ()=> {
+  // init highlight
+  try { hljs.configure({ ignoreUnescapedHTML: true }); } catch(e){}
+});
+
+/* ---------- Helpers for loading saved history ---------- */
+function appendAllSaved(saved){
+  messagesEl.innerHTML = '';
+  saved.forEach(item => appendMessageToDOM(item, false));
+  safeScrollToBottom();
+}
+
+/* On load, hydrate saved history */
+(function init(){
+  const saved = loadHistory();
+  if(saved && saved.length){
+    state.history = saved;
+    appendAllSaved(saved);
+  } else {
+    // already pushed welcome in earlier DOMContentLoaded
+  }
+})();
+
+</script>
+</body>
+</html>

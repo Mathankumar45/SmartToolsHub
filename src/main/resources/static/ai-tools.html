@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI Tools - Smart Tools Hub</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background:#eef2f7; 
+      margin:0; 
+      padding:15px; 
+    }
+    .container { 
+      max-width:1000px; 
+      margin:24px auto; 
+      background:white; 
+      padding:20px; 
+      border-radius:12px; 
+      box-shadow:0 8px 24px rgba(0,0,0,0.1); 
+    }
+    h1 { 
+      margin-top:0; 
+      color:#0b5cff; 
+      font-size:28px;
+    }
+    .tool-grid { 
+      display:grid; 
+      grid-template-columns: 1fr 1fr; 
+      gap:20px; 
+    }
+    .card { 
+      padding:20px; 
+      border-radius:12px; 
+      border:1px solid #dde4f0; 
+      background:#fff; 
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow:0 12px 28px rgba(0,0,0,0.12);
+    }
+    textarea { 
+      width:100%; 
+      min-height:120px; 
+      resize:vertical; 
+      padding:12px; 
+      border-radius:8px; 
+      border:1px solid #ccc; 
+      font-family: monospace;
+      font-size:14px;
+    }
+    .btn { 
+      padding:10px 16px; 
+      border-radius:8px; 
+      border:none; 
+      cursor:pointer; 
+      background:#0066ff; 
+      color:white; 
+      font-weight:600; 
+      transition: background 0.2s ease;
+    }
+    .btn:hover {
+      background:#0052cc;
+    }
+    .secondary { 
+      background:#f4f6fb; 
+      color:#0b5cff; 
+      border:1px solid #dfeaff; 
+    }
+    .secondary:hover {
+      background:#e8edfc;
+    }
+    .row { 
+      display:flex; 
+      gap:10px; 
+      margin-top:12px; 
+      align-items:center; 
+      flex-wrap: wrap;
+    }
+    .output { 
+      white-space:pre-wrap; 
+      background:#f8fbff; 
+      padding:14px; 
+      border-radius:8px; 
+      border:1px dashed #cce0ff; 
+      min-height:80px; 
+      margin-top:10px;
+      font-size:14px;
+    }
+    /* Chatbot */
+    .chat-window { 
+      height:360px; 
+      overflow:auto; 
+      border:1px solid #dde4f0; 
+      padding:12px; 
+      background:#f9fbff; 
+      border-radius:8px; 
+      display:flex;
+      flex-direction: column;
+      gap:8px;
+    }
+    .chat-msg { 
+      display: flex;
+      flex-direction: column;
+      max-width: 80%;
+      animation: fadeIn 0.2s ease-in;
+    }
+    @keyframes fadeIn {
+      from {opacity:0; transform: translateY(5px);}
+      to {opacity:1; transform: translateY(0);}
+    }
+    .chat-user {
+      align-self: flex-end;
+    }
+    .chat-bot {
+      align-self: flex-start;
+    }
+    .msg-bubble {
+      padding: 10px 16px;
+      border-radius: 20px;
+      word-wrap: break-word;
+      font-size:14px;
+      line-height:1.4;
+    }
+    .chat-user .msg-bubble {
+      background-color: #0066ff;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-bot .msg-bubble {
+      background-color: #f1f3f4;
+      color: #333;
+      border-bottom-left-radius: 4px;
+    }
+    .msg-author {
+      font-size: 12px;
+      margin-bottom: 2px;
+      color: #555;
+    }
+    .chat-user .msg-author { align-self: flex-end; }
+    .chat-bot .msg-author { align-self: flex-start; }
+    .typing-indicator {
+      font-style: italic;
+      opacity: 0.7;
+    }
+    .small { font-size:13px; color:#666; margin-bottom:10px; }
+    
+    /* Responsive */
+    @media (max-width:768px) {
+      .tool-grid { grid-template-columns:1fr; }
+      .chat-window { height:280px; }
+    }
+    @media (max-width:480px) {
+      .container { padding:15px; }
+      h1 { font-size:24px; }
+      textarea { min-height:100px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>AI Tools</h1>
+    <p class="small">Summarize, rewrite, explain code, and chat using AI. Results can be saved to your account.</p>
+    <div class="tool-grid">
+
+      <!-- Chatbot -->
+      <div class="card" style="grid-column:1 / -1;">
+        <h3>Chatbot</h3>
+        <div class="chat-window" id="chatWindow"></div>
+        <div style="display:flex; gap:8px; margin-top:12px;">
+          <input id="chatInput" style="flex:1; padding:10px; border-radius:8px; border:1px solid #ccc;" placeholder="Ask something...">
+          <button class="btn" onclick="sendChat()">Send</button>
+          <button class="secondary" onclick="clearChat()">Clear</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  async function sendChat() {
+    const txt = document.getElementById('chatInput').value.trim();
+    if (!txt) return;
+    
+    document.getElementById('chatInput').value = '';
+    
+    const userId = 'user-' + Date.now();
+    appendChat('You', txt, 'chat-user', {id: userId});
+    
+    const botId = 'bot-' + Date.now();
+    appendChat('Bot', '', 'chat-bot', {id: botId, isPending:true});
+    
+    try {
+      const res = await fetch('/api/ai/chat', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ message: txt })
+      });
+      const data = await res.json();
+      updateChatMessage(botId, data.output || 'No response');
+    } catch (e) {
+      updateChatMessage(botId, 'Error: ' + e.message);
+    }
+  }
+
+  function appendChat(author, text, cls, attrs) {
+    const windowEl = document.getElementById('chatWindow');
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'chat-msg ' + cls;
+    if (attrs?.id) msgDiv.id = attrs.id;
+
+    const authorDiv = document.createElement('div');
+    authorDiv.className = 'msg-author';
+    authorDiv.textContent = author;
+    msgDiv.appendChild(authorDiv);
+
+    const bubbleDiv = document.createElement('div');
+    bubbleDiv.className = 'msg-bubble';
+    bubbleDiv.textContent = text || '';
+    if (attrs?.isPending) bubbleDiv.innerHTML = '<span class="typing-indicator">Thinking...</span>';
+    msgDiv.appendChild(bubbleDiv);
+
+    windowEl.appendChild(msgDiv);
+    windowEl.scrollTop = windowEl.scrollHeight;
+  }
+
+  function updateChatMessage(id, newText) {
+    const msgEl = document.getElementById(id);
+    if (!msgEl) { appendChat('Bot', newText, 'chat-bot'); return; }
+    const bubble = msgEl.querySelector('.msg-bubble');
+    if (bubble) bubble.textContent = newText;
+  }
+
+  function clearChat() { document.getElementById('chatWindow').innerHTML = ''; }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('chatInput').addEventListener('keypress', e => {
+      if(e.key==='Enter') sendChat();
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SmartToolsHub — YouTube Downloader</title>
+
+<!-- Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+  /* ============================
+     SmartToolsHub — Blue Theme
+     ============================ */
+
+  :root{
+    --bg: #f3f8ff;
+    --panel: #ffffff;
+    --muted: #6b7280;
+    --blue-900: #06257a;
+    --blue-700: #0b5cff;
+    --blue-600: #1976ff;
+    --accent: #0b5cff;
+    --glass: rgba(255,255,255,0.7);
+    --radius: 14px;
+    --maxw: 1180px;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+  }
+
+  html, body {
+    height:100%;
+    margin:0;
+    font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: linear-gradient(180deg, #eaf4ff, var(--bg));
+    color: #081427;
+  }
+
+  .wrap {
+    max-width: var(--maxw);
+    margin: 26px auto;
+    padding: 16px;
+  }
+
+  .app {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  /* ---------------- Sidebar ---------------- */
+  .sidebar {
+    background: linear-gradient(180deg, var(--blue-700), var(--blue-900));
+    color: white;
+    padding: 18px;
+    border-radius: 12px;
+    min-height: calc(100vh - 56px);
+    box-shadow: 0 12px 36px rgba(11,92,255,0.12);
+  }
+
+  .brand {
+    display:flex; gap:12px; align-items:center; margin-bottom:12px;
+  }
+  .logo {
+    width:46px; height:46px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; color:white; font-size:18px;
+    background: linear-gradient(135deg, #2b6cff, #0b5cff);
+    box-shadow: 0 8px 26px rgba(11,92,255,0.16);
+  }
+  .brand h2 { margin:0; font-size:18px; }
+  .brand p.small { margin:0; color:rgba(255,255,255,0.88); font-size:13px; margin-top:4px; }
+
+  .nav { margin-top:18px; display:flex; flex-direction:column; gap:8px; }
+  .nav a {
+    color: white;
+    text-decoration:none;
+    padding:10px;
+    border-radius:8px;
+    font-weight:700;
+    display:block;
+  }
+  .nav a:hover { background: rgba(255,255,255,0.06); }
+  .nav a.active { background: rgba(255,255,255,0.12); }
+
+  .section-title { margin-top:18px; color:rgba(255,255,255,0.9); font-weight:700; font-size:13px; }
+
+  .sidebar .small { color: rgba(255,255,255,0.9); font-size:13px; }
+
+  /* ---------------- Main Panel ---------------- */
+  .panel {
+    background: var(--panel);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(9,30,66,0.06);
+    padding: 12px;
+    display:flex;
+    flex-direction:column;
+    height: calc(100vh - 56px);
+  }
+
+  .panel-header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    padding:8px 12px;
+    border-bottom:1px solid #eef6ff;
+  }
+
+  .title {
+    font-weight:900;
+    color: var(--blue-700);
+    font-size:18px;
+  }
+  .subtitle {
+    font-size:13px;
+    color: var(--muted);
+    margin-top:4px;
+  }
+
+  .actions { display:flex; gap:8px; align-items:center; }
+
+  .btn {
+    padding:8px 12px; border-radius:10px; cursor:pointer; font-weight:800;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn.primary {
+    background: var(--blue-700); color:white; border:none; box-shadow: 0 8px 20px rgba(11,92,255,0.12);
+  }
+  .btn.ghost {
+    background: transparent; border:1px solid #e8f3ff; color: var(--blue-700);
+  }
+  .btn.warn { background: var(--warning); color:white; }
+  .btn.success { background: var(--success); color:white; }
+
+  /* ---------------- Content Area ---------------- */
+  .content-area {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    flex: 1;
+    overflow: auto;
+  }
+
+  .form-section {
+    background: linear-gradient(180deg, rgba(11,92,255,0.012), rgba(255,255,255,0.02));
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 8px 24px rgba(9,30,66,0.04);
+  }
+
+  .form-group {
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: var(--blue-900);
+  }
+
+  input[type="text"], select {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #eef6ff;
+    background: #fbfeff;
+    font-family: inherit;
+    font-size: 14px;
+    transition: all 0.2s ease;
+  }
+
+  input[type="text"]:focus, select:focus {
+    outline: none;
+    border-color: var(--blue-600);
+    box-shadow: 0 0 0 3px rgba(11,92,255,0.1);
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .download-section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .status-container {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .status-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .status-icon.pending {
+    background: rgba(11,92,255,0.1);
+    color: var(--blue-700);
+  }
+
+  .status-icon.completed {
+    background: rgba(16,185,129,0.1);
+    color: var(--success);
+  }
+
+  .status-icon.failed {
+    background: rgba(239,68,68,0.1);
+    color: var(--error);
+  }
+
+  .status-details {
+    flex: 1;
+  }
+
+  .status-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .status-message {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .progress-bar {
+    height: 8px;
+    background: #eef6ff;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue-600), var(--blue-700));
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  .download-btn {
+    padding: 14px 24px;
+    font-size: 16px;
+    justify-content: center;
+  }
+
+  .download-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--blue-700);
+    text-decoration: none;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(11,92,255,0.08);
+    transition: all 0.2s ease;
+  }
+
+  .download-link:hover {
+    background: rgba(11,92,255,0.16);
+  }
+
+  .history-section {
+    margin-top: 20px;
+  }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    margin-bottom: 10px;
+  }
+
+  .history-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .history-thumbnail {
+    width: 60px;
+    height: 45px;
+    border-radius: 6px;
+    background: #eef6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--blue-700);
+  }
+
+  .history-details h4 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .history-details p {
+    margin: 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--muted);
+  }
+
+  .empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+  }
+
+  /* small screens */
+  @media (max-width: 980px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { height:auto; position:relative; }
+    .panel { height:auto; min-height:80vh; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="app">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" aria-label="SmartToolsHub menu">
+      <div class="brand">
+        <div class="logo">SH</div>
+        <div>
+          <h2>SmartToolsHub</h2>
+          <p class="small">AI tools & developer utilities</p>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="main navigation">
+        <a href="/index.html">Dashboard</a>
+        <a href="/resumebuilder.html">Resume Builder</a>
+        <a href="/resumetemplates.html">Resume Templates</a>
+        <a href="/pdfmerge.html">PDF Merger</a>
+        <a href="/fileconverter.html">File Converter</a>
+        <a href="/wordcounter.html">Word Counter</a>
+        <a href="/datecalculator.html">Date Calculator</a>
+        <a href="/youtube-downloader.html" class="active">YouTube Downloader</a>
+        <a href="/ai.html">AI Tools</a>
+      </nav>
+
+      <div class="section-title">Settings</div>
+      <div style="margin-top:10px;">
+        <div class="small">Default download quality</div>
+        <select id="defaultQuality" style="width:100%; margin-top:8px; padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.1); color:white;">
+          <option value="best">Best</option>
+          <option value="worst">Worst</option>
+          <option value="1080p">1080p</option>
+          <option value="720p">720p</option>
+          <option value="480p">480p</option>
+        </select>
+      </div>
+
+      <div style="margin-top:16px;">
+        <div class="small">Default download format</div>
+        <select id="defaultFormat" style="width:100%; margin-top:8px; padding:8px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.1); color:white;">
+          <option value="mp4">MP4</option>
+          <option value="mp3">MP3</option>
+          <option value="webm">WebM</option>
+          <option value="mkv">MKV</option>
+        </select>
+      </div>
+
+      <div style="margin-top:16px;">
+        <button id="clearHistoryBtn" class="btn ghost" style="width:100%;">Clear Download History</button>
+      </div>
+    </aside>
+
+    <!-- MAIN PANEL -->
+    <main class="panel" role="main">
+      <div class="panel-header">
+        <div>
+          <div class="title">YouTube Downloader</div>
+          <div class="subtitle">Download YouTube videos in various formats and qualities</div>
+        </div>
+
+        <div class="actions">
+          <button id="themeBtn" class="btn ghost"><i class="fas fa-moon"></i> Theme</button>
+          <button id="helpBtn" class="btn ghost"><i class="fas fa-question-circle"></i> Help</button>
+        </div>
+      </div>
+
+      <div class="content-area">
+        <div class="form-section">
+          <div class="form-group">
+            <label for="url">YouTube Video URL</label>
+            <input type="text" id="url" placeholder="https://youtu.be/xxxx or https://www.youtube.com/watch?v=xxxx">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="format">Format</label>
+              <select id="format">
+                <option value="mp4">MP4 (Video)</option>
+                <option value="mp3">MP3 (Audio)</option>
+                <option value="webm">WebM (Video)</option>
+                <option value="mkv">MKV (Video)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="quality">Quality</label>
+              <select id="quality">
+                <option value="best">Best Available</option>
+                <option value="worst">Lowest</option>
+                <option value="1080p">1080p</option>
+                <option value="720p">720p</option>
+                <option value="480p">480p</option>
+                <option value="360p">360p</option>
+              </select>
+            </div>
+          </div>
+
+          <button id="downloadBtn" class="btn primary download-btn">
+            <i class="fas fa-download"></i> Start Download
+          </button>
+        </div>
+
+        <div class="download-section">
+          <div class="status-container">
+            <div id="statusPlaceholder" class="empty-state">
+              <i class="fas fa-download"></i>
+              <p>No downloads in progress. Start a new download to see its status here.</p>
+            </div>
+            <div id="statusList" style="display:none;">
+              <!-- Status items will be added here dynamically -->
+            </div>
+          </div>
+
+          <div class="history-section">
+            <h3 style="margin-bottom: 12px;">Download History</h3>
+            <div id="historyList">
+              <!-- History items will be added here dynamically -->
+            </div>
+            <div id="historyPlaceholder" class="empty-state">
+              <i class="fas fa-history"></i>
+              <p>No download history available.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+</div>
+
+<script>
+// YouTube Downloader JavaScript
+document.addEventListener('DOMContentLoaded', () => {
+  // Load settings from localStorage
+  loadSettings();
+  
+  // Load download history
+  loadHistory();
+  
+  // Set up event listeners
+  document.getElementById('downloadBtn').addEventListener('click', startDownload);
+  document.getElementById('clearHistoryBtn').addEventListener('click', clearHistory);
+  document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+  document.getElementById('helpBtn').addEventListener('click', showHelp);
+  document.getElementById('defaultQuality').addEventListener('change', saveSettings);
+  document.getElementById('defaultFormat').addEventListener('change', saveSettings);
+});
+
+// Settings management
+function loadSettings() {
+  const defaultQuality = localStorage.getItem('ytDefaultQuality') || 'best';
+  const defaultFormat = localStorage.getItem('ytDefaultFormat') || 'mp4';
+  
+  document.getElementById('defaultQuality').value = defaultQuality;
+  document.getElementById('defaultFormat').value = defaultFormat;
+  document.getElementById('quality').value = defaultQuality;
+  document.getElementById('format').value = defaultFormat;
+}
+
+function saveSettings() {
+  localStorage.setItem('ytDefaultQuality', document.getElementById('defaultQuality').value);
+  localStorage.setItem('ytDefaultFormat', document.getElementById('defaultFormat').value);
+}
+
+// Download history management
+function loadHistory() {
+  const history = JSON.parse(localStorage.getItem('ytDownloadHistory') || '[]');
+  
+  if (history.length > 0) {
+    document.getElementById('historyPlaceholder').style.display = 'none';
+    document.getElementById('historyList').style.display = 'block';
+    
+    const historyList = document.getElementById('historyList');
+    historyList.innerHTML = '';
+    
+    history.forEach(item => {
+      const historyItem = createHistoryItem(item);
+      historyList.appendChild(historyItem);
+    });
+  }
+}
+
+function saveToHistory(item) {
+  let history = JSON.parse(localStorage.getItem('ytDownloadHistory') || '[]');
+  
+  // Add to beginning of array
+  history.unshift(item);
+  
+  // Keep only last 10 items
+  if (history.length > 10) {
+    history = history.slice(0, 10);
+  }
+  
+  localStorage.setItem('ytDownloadHistory', JSON.stringify(history));
+  loadHistory();
+}
+
+function clearHistory() {
+  if (confirm('Are you sure you want to clear all download history?')) {
+    localStorage.removeItem('ytDownloadHistory');
+    document.getElementById('historyPlaceholder').style.display = 'block';
+    document.getElementById('historyList').style.display = 'none';
+  }
+}
+
+function createHistoryItem(item) {
+  const div = document.createElement('div');
+  div.className = 'history-item';
+  
+  div.innerHTML = `
+    <div class="history-info">
+      <div class="history-thumbnail">
+        <i class="fas fa-play"></i>
+      </div>
+      <div class="history-details">
+        <h4>${item.title || 'Unknown Video'}</h4>
+        <p>${item.format.toUpperCase()} • ${item.quality} • ${new Date(item.timestamp).toLocaleString()}</p>
+      </div>
+    </div>
+    <a href="${item.downloadUrl}" class="download-link" download>
+      <i class="fas fa-download"></i> Download
+    </a>
+  `;
+  
+  return div;
+}
+
+// Download management
+let activeDownloads = {};
+
+function startDownload() {
+  const url = document.getElementById('url').value.trim();
+  const format = document.getElementById('format').value;
+  const quality = document.getElementById('quality').value;
+  
+  if (!url) {
+    showNotification('Please enter a YouTube video URL', 'error');
+    return;
+  }
+  
+  // Show status container
+  document.getElementById('statusPlaceholder').style.display = 'none';
+  document.getElementById('statusList').style.display = 'block';
+  
+  // Create status item
+  const statusId = 'status-' + Date.now();
+  const statusItem = createStatusItem(statusId, url, format, quality);
+  document.getElementById('statusList').appendChild(statusItem);
+  
+  // Start download via API
+  fetch('/api/yt/download', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url, format, quality })
+  })
+  .then(res => {
+    if (!res.ok) throw new Error('Server responded with error: ' + res.status);
+    return res.json();
+  })
+  .then(data => {
+    const jobId = data.jobId;
+    activeDownloads[jobId] = { statusId, url, format, quality };
+    updateStatus(statusId, 'pending', 'Download started', `Job ID: ${jobId}`);
+    pollStatus(jobId);
+  })
+  .catch(err => {
+    updateStatus(statusId, 'failed', 'Error', err.message);
+  });
+  
+  // Clear input
+  document.getElementById('url').value = '';
+}
+
+function createStatusItem(id, url, format, quality) {
+  const div = document.createElement('div');
+  div.id = id;
+  div.className = 'status-item';
+  
+  // Extract video ID from URL for display
+  const videoId = extractVideoId(url);
+  const videoTitle = videoId ? `Video (${videoId})` : 'Unknown Video';
+  
+  div.innerHTML = `
+    <div class="status-icon pending">
+      <i class="fas fa-clock"></i>
+    </div>
+    <div class="status-details">
+      <div class="status-title">${videoTitle}</div>
+      <div class="status-message">Initializing download...</div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: 0%"></div>
+      </div>
+    </div>
+  `;
+  
+  return div;
+}
+
+function updateStatus(id, state, message, details = '') {
+  const statusItem = document.getElementById(id);
+  if (!statusItem) return;
+  
+  const icon = statusItem.querySelector('.status-icon');
+  const title = statusItem.querySelector('.status-title');
+  const msg = statusItem.querySelector('.status-message');
+  const progressBar = statusItem.querySelector('.progress-fill');
+  
+  // Update icon and class
+  icon.className = 'status-icon ' + state;
+  
+  // Update icon content
+  if (state === 'pending') {
+    icon.innerHTML = '<i class="fas fa-clock"></i>';
+  } else if (state === 'processing') {
+    icon.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+  } else if (state === 'completed') {
+    icon.innerHTML = '<i class="fas fa-check"></i>';
+  } else if (state === 'failed') {
+    icon.innerHTML = '<i class="fas fa-exclamation-triangle"></i>';
+  }
+  
+  // Update message
+  msg.textContent = message;
+  
+  // Update progress if available
+  if (details && details.includes('%')) {
+    const progress = parseInt(details.match(/(\d+)%/)[1]);
+    progressBar.style.width = progress + '%';
+  }
+}
+
+function pollStatus(jobId) {
+  const download = activeDownloads[jobId];
+  if (!download) return;
+  
+  const interval = setInterval(() => {
+    fetch(`/api/yt/status/${jobId}`)
+    .then(res => {
+      if (!res.ok) throw new Error('Server responded with error: ' + res.status);
+      return res.json();
+    })
+    .then(data => {
+      const { statusId, url, format, quality } = download;
+      
+      if (data.state === 'processing') {
+        updateStatus(statusId, 'processing', 'Processing download...', data.progress || '0%');
+      } else if (data.state === 'completed') {
+        updateStatus(statusId, 'completed', 'Download completed', '100%');
+        
+        // Update progress bar to 100%
+        const progressBar = document.querySelector(`#${statusId} .progress-fill`);
+        if (progressBar) progressBar.style.width = '100%';
+        
+        // Add download link
+        const statusDetails = document.querySelector(`#${statusId} .status-details`);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = data.downloadUrl;
+        downloadLink.className = 'download-link';
+        downloadLink.innerHTML = '<i class="fas fa-download"></i> Download File';
+        downloadLink.setAttribute('download', '');
+        statusDetails.appendChild(downloadLink);
+        
+        // Save to history
+        saveToHistory({
+          url,
+          format,
+          quality,
+          downloadUrl: data.downloadUrl,
+          title: data.title,
+          timestamp: Date.now()
+        });
+        
+        clearInterval(interval);
+        delete activeDownloads[jobId];
+      } else if (data.state === 'failed') {
+        updateStatus(statusId, 'failed', 'Download failed', data.error || 'Unknown error');
+        clearInterval(interval);
+        delete activeDownloads[jobId];
+      }
+    })
+    .catch(err => {
+      const { statusId } = download;
+      updateStatus(statusId, 'failed', 'Error checking status', err.message);
+      clearInterval(interval);
+      delete activeDownloads[jobId];
+    });
+  }, 2000);
+}
+
+// Utility functions
+function extractVideoId(url) {
+  const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[7].length === 11) ? match[7] : null;
+}
+
+function showNotification(message, type = 'info') {
+  // Create notification element
+  const notification = document.createElement('div');
+  notification.className = 'notification ' + type;
+  notification.textContent = message;
+  
+  // Style the notification
+  notification.style.position = 'fixed';
+  notification.style.bottom = '20px';
+  notification.style.right = '20px';
+  notification.style.padding = '12px 20px';
+  notification.style.borderRadius = '8px';
+  notification.style.color = 'white';
+  notification.style.fontWeight = '700';
+  notification.style.zIndex = '1000';
+  notification.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+  
+  if (type === 'error') {
+    notification.style.background = 'var(--error)';
+  } else if (type === 'success') {
+    notification.style.background = 'var(--success)';
+  } else {
+    notification.style.background = 'var(--blue-700)';
+  }
+  
+  // Add to DOM
+  document.body.appendChild(notification);
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transition = 'opacity 0.3s ease';
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
+}
+
+function toggleTheme() {
+  // Simple theme toggle for demo
+  const isDark = document.body.classList.toggle('dark-theme');
+  
+  if (isDark) {
+    document.documentElement.style.setProperty('--bg', '#071428');
+    document.documentElement.style.setProperty('--panel', '#071428');
+    document.documentElement.style.setProperty('--muted', '#9aa4b2');
+    document.body.style.background = '#071428';
+    document.getElementById('themeBtn').innerHTML = '<i class="fas fa-sun"></i> Theme';
+  } else {
+    document.documentElement.style.setProperty('--bg', '#f3f8ff');
+    document.documentElement.style.setProperty('--panel', '#ffffff');
+    document.documentElement.style.setProperty('--muted', '#6b7280');
+    document.body.style.background = '';
+    document.getElementById('themeBtn').innerHTML = '<i class="fas fa-moon"></i> Theme';
+  }
+}
+
+function showHelp() {
+  alert('YouTube Downloader Help:\n\n1. Paste a YouTube video URL in the input field.\n2. Select your desired format (MP4 for video, MP3 for audio).\n3. Choose the quality you prefer.\n4. Click "Start Download" to begin.\n5. Monitor the download progress in the status area.\n6. Once completed, click the download link to save the file.\n\nNote: Make sure you have the right to download and use the content according to YouTube\'s terms of service and copyright laws.');
+}
+</script>
+</body>
+</html>

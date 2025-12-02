@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.2.0</version>
-        <relativePath/>
     </parent>
 
     <groupId>com.smarttoolshub</groupId>
@@ -20,37 +20,66 @@
         <java.version>17</java.version>
     </properties>
 
+    <!-- Required for Spring AI -->
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <url>https://repo.spring.io/milestone</url>
+        </repository>
+        <repository>
+            <id>spring-snapshots</id>
+            <url>https://repo.spring.io/snapshot</url>
+            <releases><enabled>false</enabled></releases>
+        </repository>
+    </repositories>
+
     <dependencies>
-			<dependency>
-    <groupId>com.sendgrid</groupId>
-    <artifactId>sendgrid-java</artifactId>
-    <version>4.10.0</version>
+    
+
+<dependency>
+    <groupId>com.razorpay</groupId>
+    <artifactId>razorpay-java</artifactId>
+    <version>1.4.6</version> <!-- Use the latest version -->
+</dependency>
+		<!-- JAXB API -->
+<dependency>
+    <groupId>jakarta.xml.bind</groupId>
+    <artifactId>jakarta.xml.bind-api</artifactId>
+    <version>4.0.1</version>
 </dependency>
 
-        <!-- Web -->
+<!-- JAXB Runtime (the implementation) -->
+<dependency>
+    <groupId>org.glassfish.jaxb</groupId>
+    <artifactId>jaxb-runtime</artifactId>
+    <version>4.0.4</version>
+</dependency>
+
+        <!-- SendGrid -->
+        <dependency>
+            <groupId>com.sendgrid</groupId>
+            <artifactId>sendgrid-java</artifactId>
+            <version>4.10.0</version>
+        </dependency>
+
+        <!-- Spring Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-logging</groupId>
-                    <artifactId>commons-logging</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-        
-        <!-- Email Service -->
+
+        <!-- Email -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
 
-        <!-- Spring Security -->
+        <!-- Security -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
-        
+
         <!-- JPA -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -71,12 +100,11 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- DevTools -->
+        <!-- Devtools -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
-            <optional>true</optional>
         </dependency>
 
         <!-- Testing -->
@@ -93,7 +121,7 @@
             <version>2.0.29</version>
         </dependency>
 
-        <!-- Apache POI (DOCX support) -->
+        <!-- Apache POI -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
@@ -106,31 +134,33 @@
             <version>5.2.5</version>
         </dependency>
 
-        <!-- Apache Tika for file type detection -->
+        <!-- Tika -->
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
             <version>2.9.1</version>
         </dependency>
 
-        <!-- Jackson for JSON processing -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-
-        <!-- Validation (REMOVED DUPLICATE) -->
+        <!-- Validation -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Tesseract OCR -->
+        <!-- OCR -->
         <dependency>
             <groupId>net.sourceforge.tess4j</groupId>
             <artifactId>tess4j</artifactId>
             <version>5.8.0</version>
         </dependency>
+
+        <!-- ⭐ SPRING AI (NO BOM REQUIRED) ⭐ -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+            <version>1.0.0-M2</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -138,15 +168,8 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
             </plugin>
         </plugins>
     </build>
+
 </project>

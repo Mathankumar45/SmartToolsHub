@@ -3,7 +3,7 @@ package com.SmartToolsHub.service;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Email;
 import com.sendgrid.helpers.mail.objects.Content;
-
+import com.SmartToolsHub.model.Transaction;
 import com.sendgrid.Method;
 import com.sendgrid.Request;
 import com.sendgrid.SendGrid;
@@ -124,4 +124,14 @@ public class EmailService {
             name, email, phone, serviceType, budget, message
         );
     }
+
+	public void sendAdminAlert(String string, Exception ex) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void sendRechargeCompletedEmail(Transaction txn, String userEmail) {
+		// TODO Auto-generated method stub
+		
+	}
 }
