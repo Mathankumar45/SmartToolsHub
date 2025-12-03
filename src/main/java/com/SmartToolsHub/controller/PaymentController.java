@@ -62,7 +62,12 @@ public class PaymentController {
             String circle = "India"; // replace with actual circle if needed
 
             Map<String,Object> payResp = pay2AllClient.rechargeMobile(
-                    txn.getAccountNumber(), operator, circle, txn.getAmount(), txn.getTransactionId());
+                    txn.getAccountNumber(),
+                    operator,               // provider_id (must be string or numeric string)
+                    txn.getAmount(),
+                    txn.getTransactionId()
+            );
+
 
             // Example response keys: statusCode / status / vendor_txn_id / message
             String status = (String) payResp.getOrDefault("status","PENDING");

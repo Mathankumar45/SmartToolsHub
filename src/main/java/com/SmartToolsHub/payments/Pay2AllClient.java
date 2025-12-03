@@ -26,7 +26,7 @@ public class Pay2AllClient {
     }
 
     public Map<String, Object> rechargeMobile(
-            String mobile, int providerId, int amount, String transactionId) {
+            String mobile, String operator, int amount, String transactionId) {
 
         String url = BASE_URL + "/recharge";
 
@@ -38,7 +38,7 @@ public class Pay2AllClient {
 
         Map<String, Object> payload = Map.of(
                 "number", mobile,
-                "provider_id", providerId,
+                "provider_id", operator,
                 "amount", amount,
                 "client_id", transactionId
         );
