@@ -6,8 +6,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.*;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
 
 @Service
@@ -15,37 +14,72 @@ public class YtService {
 
     private final Map<String, JobStatus> jobs = new ConcurrentHashMap<>();
     private final ExecutorService executor = Executors.newFixedThreadPool(3);
-    private final Path downloadDir = Paths.get("downloads");
 
-    // Path to yt-dlp executable
+    // Render-safe directory
+    private final Path downloadDir = Paths.get("/tmp/downloads");
+
     private final String ytDlpPath;
 
-    // Proxy environment variables
-    private final String proxyHost = System.getenv("YT_PROXY_HOST");
-    private final String proxyPort = System.getenv("YT_PROXY_PORT");
-    private final String proxyUser = System.getenv("YT_PROXY_USER");
-    private final String proxyPass = System.getenv("YT_PROXY_PASS");
+    // Proxy rotation list
+    private final List<String> proxyList = new ArrayList<>();
+    private int proxyIndex = 0;
 
     public YtService() throws IOException {
         Files.createDirectories(downloadDir);
 
+        // Detect yt-dlp
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            this.ytDlpPath = "C:\\tools\\yt-dlp.exe"; // local Windows path
+            this.ytDlpPath = "C:\\tools\\yt-dlp.exe";
         } else {
-            this.ytDlpPath = "yt-dlp"; // assume installed in Linux PATH
+            this.ytDlpPath = "yt-dlp";
         }
 
-        // Test yt-dlp
+        loadProxyList();
+        testYtDlp();
+    }
+
+    private void testYtDlp() {
         try {
             ProcessBuilder pb = new ProcessBuilder(ytDlpPath, "--version");
             Process p = pb.start();
-            int exit = p.waitFor();
-            if (exit != 0) {
-                System.err.println("yt-dlp exists but failed to run");
-            }
-        } catch (IOException | InterruptedException e) {
-            System.err.println("yt-dlp executable not found! Please install it and ensure it's in PATH.");
+            p.waitFor();
+            System.out.println("yt-dlp detected successfully.");
+        } catch (Exception e) {
+            System.err.println("yt-dlp executable not found or not working on Render!");
         }
+    }
+
+    private void loadProxyList() {
+        String list = System.getenv("YT_PROXY_LIST");
+        if (list != null && !list.isEmpty()) {
+            String[] arr = list.split(",");
+            for (String item : arr) {
+                item = item.trim();
+                if (!item.isEmpty()) {
+                    proxyList.add(item);
+                }
+            }
+        }
+        System.out.println("Loaded proxies: " + proxyList.size());
+    }
+
+    // Get next proxy (round-robin)
+    private synchronized String getNextProxy() {
+        if (proxyList.isEmpty()) return null;
+
+        String raw = proxyList.get(proxyIndex);
+        proxyIndex = (proxyIndex + 1) % proxyList.size();
+
+        String[] parts = raw.split(":");
+        if (parts.length == 4) {
+            String ip = parts[0];
+            String port = parts[1];
+            String user = parts[2];
+            String pass = parts[3];
+            return "http://" + user + ":" + pass + "@" + ip + ":" + port;
+        }
+
+        return null;
     }
 
     public String createJob(String url, String format, String quality) {
@@ -54,7 +88,6 @@ public class YtService {
         jobs.put(jobId, job);
 
         executor.submit(() -> runDownloadJob(jobId, url, format, quality));
-
         return jobId;
     }
 
@@ -66,42 +99,34 @@ public class YtService {
             String fileName = jobId + (format.equals("mp3") ? ".mp3" : ".mp4");
             Path outputFile = downloadDir.resolve(fileName);
 
-            ProcessBuilder pb;
+            // Rotating Proxy
+            String proxyArg = getNextProxy();
+            System.out.println("Using proxy: " + proxyArg);
 
-            // Build proxy argument if environment variables exist
-            String proxyArg = null;
-            if (proxyHost != null && proxyPort != null) {
-                if (proxyUser != null && proxyPass != null) {
-                    proxyArg = String.format("http://%s:%s@%s:%s", proxyUser, proxyPass, proxyHost, proxyPort);
-                } else {
-                    proxyArg = String.format("http://%s:%s", proxyHost, proxyPort);
-                }
-            }
-
-            if (format.equals("mp3")) {
-                pb = new ProcessBuilder(
-                        ytDlpPath,
-                        "-f", quality,
-                        "--extract-audio",
-                        "--audio-format", "mp3",
-                        "-o", outputFile.toString(),
-                        url
-                );
-            } else {
-                pb = new ProcessBuilder(
-                        ytDlpPath,
-                        "-f", quality,
-                        "-o", outputFile.toString(),
-                        url
-                );
-            }
+            List<String> command = new ArrayList<>();
+            command.add(ytDlpPath);
 
             if (proxyArg != null) {
-                pb.command().add(1, "--proxy"); // insert --proxy argument after yt-dlp
-                pb.command().add(2, proxyArg);  // insert proxy URL
+                command.add("--proxy");
+                command.add(proxyArg);
             }
 
+            command.add("-f");
+            command.add(quality);
+
+            if (format.equals("mp3")) {
+                command.add("--extract-audio");
+                command.add("--audio-format");
+                command.add("mp3");
+            }
+
+            command.add("-o");
+            command.add(outputFile.toString());
+            command.add(url);
+
+            ProcessBuilder pb = new ProcessBuilder(command);
             pb.redirectErrorStream(true);
+
             Process process = pb.start();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -111,17 +136,15 @@ public class YtService {
             }
 
             int exit = process.waitFor();
+
             if (exit == 0) {
                 job.setState("completed");
-                job.setDownloadUrl("/downloads/" + fileName);
+                job.setDownloadUrl("/api/yt/downloads/" + fileName);
             } else {
                 job.setState("failed");
-                job.setError("Download failed: Exit code " + exit);
+                job.setError("Download failed: exit " + exit);
             }
 
-        } catch (IOException e) {
-            job.setState("failed");
-            job.setError("yt-dlp not found or failed to run. Please ensure yt-dlp is installed and in PATH.");
         } catch (Exception e) {
             job.setState("failed");
             job.setError(e.getMessage());
@@ -130,16 +153,5 @@ public class YtService {
 
     public JobStatus getJobStatus(String jobId) {
         return jobs.getOrDefault(jobId, new JobStatus(jobId, "not_found", null, null));
-    }
-
-    public boolean deleteJob(String jobId) {
-        JobStatus job = jobs.remove(jobId);
-        if (job == null || job.getDownloadUrl() == null) return false;
-
-        try {
-            Files.deleteIfExists(Paths.get(job.getDownloadUrl()));
-        } catch (IOException ignored) {}
-
-        return true;
     }
 }

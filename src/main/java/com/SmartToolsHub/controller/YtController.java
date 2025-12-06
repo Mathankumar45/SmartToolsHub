@@ -17,41 +17,37 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 
-
 @RestController
 @RequestMapping("/api/yt")
 public class YtController {
 
+    @Autowired
+    private YtService ytService;
 
-@Autowired
-private YtService ytService;
-
-
-@PostMapping("/download")
-public ResponseEntity<?> startDownload(@RequestBody DownloadRequest req) {
-// add auth check / rate limit here
-String jobId = ytService.createJob(req.getUrl(), req.getFormat(), req.getQuality());
-return ResponseEntity.ok(Map.of("jobId", jobId));
-}
-
-
-@GetMapping("/status/{jobId}")
-public ResponseEntity<?> status(@PathVariable String jobId) {
-JobStatus s = ytService.getJobStatus(jobId);
-return ResponseEntity.ok(s);
-}
-@GetMapping("/downloads/{filename:.+}")
-public ResponseEntity<Resource> serveFile(@PathVariable String filename) throws IOException {
-    Path file = Paths.get("downloads").resolve(filename);
-    if (!Files.exists(file)) {
-        return ResponseEntity.notFound().build();
+    @PostMapping("/download")
+    public ResponseEntity<?> startDownload(@RequestBody DownloadRequest req) {
+        String jobId = ytService.createJob(req.getUrl(), req.getFormat(), req.getQuality());
+        return ResponseEntity.ok(Map.of("jobId", jobId));
     }
-    Resource resource = new UrlResource(file.toUri());
-    return ResponseEntity.ok()
-            .header("Content-Disposition", "attachment; filename=\"" + file.getFileName() + "\"")
-            .body(resource);
-}
-}
 
+    @GetMapping("/status/{jobId}")
+    public ResponseEntity<?> status(@PathVariable String jobId) {
+        JobStatus s = ytService.getJobStatus(jobId);
+        return ResponseEntity.ok(s);
+    }
 
-// DTOs
+    @GetMapping("/downloads/{filename:.+}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) throws IOException {
+        Path file = Paths.get("/tmp/downloads").resolve(filename);
+
+        if (!Files.exists(file)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Resource resource = new UrlResource(file.toUri());
+
+        return ResponseEntity.ok()
+                .header("Content-Disposition", "attachment; filename=\"" + file.getFileName() + "\"")
+                .body(resource);
+    }
+}
