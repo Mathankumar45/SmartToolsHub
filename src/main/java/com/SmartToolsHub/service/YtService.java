@@ -92,6 +92,11 @@ public class YtService {
             if (proxy != null) {
                 command.add("--proxy");
                 command.add(proxy);
+                command.add("--force-ipv4");
+                command.add("--http-chunk-size");
+                command.add("10M");
+                command.add("--ignore-errors");
+                command.add("--no-check-certificate");
             }
 
             command.add("-f");
