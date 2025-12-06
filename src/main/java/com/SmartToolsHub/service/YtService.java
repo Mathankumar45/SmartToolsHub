@@ -20,17 +20,22 @@ public class YtService {
     // Path to yt-dlp executable
     private final String ytDlpPath;
 
+    // Proxy environment variables
+    private final String proxyHost = System.getenv("YT_PROXY_HOST");
+    private final String proxyPort = System.getenv("YT_PROXY_PORT");
+    private final String proxyUser = System.getenv("YT_PROXY_USER");
+    private final String proxyPass = System.getenv("YT_PROXY_PASS");
+
     public YtService() throws IOException {
         Files.createDirectories(downloadDir);
 
-        // Detect yt-dlp path
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
             this.ytDlpPath = "C:\\tools\\yt-dlp.exe"; // local Windows path
         } else {
             this.ytDlpPath = "yt-dlp"; // assume installed in Linux PATH
         }
 
-        // Test if yt-dlp is available
+        // Test yt-dlp
         try {
             ProcessBuilder pb = new ProcessBuilder(ytDlpPath, "--version");
             Process p = pb.start();
@@ -43,7 +48,6 @@ public class YtService {
         }
     }
 
-    // Create background job
     public String createJob(String url, String format, String quality) {
         String jobId = UUID.randomUUID().toString();
         JobStatus job = new JobStatus(jobId, "pending", null, null);
@@ -54,7 +58,6 @@ public class YtService {
         return jobId;
     }
 
-    // Execute video download
     private void runDownloadJob(String jobId, String url, String format, String quality) {
         JobStatus job = jobs.get(jobId);
         job.setState("running");
@@ -64,6 +67,17 @@ public class YtService {
             Path outputFile = downloadDir.resolve(fileName);
 
             ProcessBuilder pb;
+
+            // Build proxy argument if environment variables exist
+            String proxyArg = null;
+            if (proxyHost != null && proxyPort != null) {
+                if (proxyUser != null && proxyPass != null) {
+                    proxyArg = String.format("http://%s:%s@%s:%s", proxyUser, proxyPass, proxyHost, proxyPort);
+                } else {
+                    proxyArg = String.format("http://%s:%s", proxyHost, proxyPort);
+                }
+            }
+
             if (format.equals("mp3")) {
                 pb = new ProcessBuilder(
                         ytDlpPath,
@@ -82,6 +96,11 @@ public class YtService {
                 );
             }
 
+            if (proxyArg != null) {
+                pb.command().add(1, "--proxy"); // insert --proxy argument after yt-dlp
+                pb.command().add(2, proxyArg);  // insert proxy URL
+            }
+
             pb.redirectErrorStream(true);
             Process process = pb.start();
 
@@ -92,7 +111,6 @@ public class YtService {
             }
 
             int exit = process.waitFor();
-
             if (exit == 0) {
                 job.setState("completed");
                 job.setDownloadUrl("/downloads/" + fileName);
@@ -110,12 +128,10 @@ public class YtService {
         }
     }
 
-    // Check job status
     public JobStatus getJobStatus(String jobId) {
         return jobs.getOrDefault(jobId, new JobStatus(jobId, "not_found", null, null));
     }
 
-    // Delete job + file
     public boolean deleteJob(String jobId) {
         JobStatus job = jobs.remove(jobId);
         if (job == null || job.getDownloadUrl() == null) return false;
