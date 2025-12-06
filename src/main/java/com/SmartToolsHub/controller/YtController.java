@@ -26,6 +26,10 @@ public class YtController {
 
     @PostMapping("/download")
     public ResponseEntity<?> startDownload(@RequestBody DownloadRequest req) {
+        if (req.getUrl() == null || req.getUrl().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "URL is required"));
+        }
+
         String jobId = ytService.createJob(req.getUrl(), req.getFormat(), req.getQuality());
         return ResponseEntity.ok(Map.of("jobId", jobId));
     }
@@ -38,6 +42,7 @@ public class YtController {
 
     @GetMapping("/downloads/{filename:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) throws IOException {
+
         Path file = Paths.get("/tmp/downloads").resolve(filename);
 
         if (!Files.exists(file)) {

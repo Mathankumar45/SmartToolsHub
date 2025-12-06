@@ -20,10 +20,6 @@ public class YtService {
 
     private final String ytDlpPath;
 
-    // Proxy rotation list
-    private final List<String> proxyList = new ArrayList<>();
-    private int proxyIndex = 0;
-
     public YtService() throws IOException {
         Files.createDirectories(downloadDir);
 
@@ -34,7 +30,6 @@ public class YtService {
             this.ytDlpPath = "yt-dlp";
         }
 
-        loadProxyList();
         testYtDlp();
     }
 
@@ -43,43 +38,27 @@ public class YtService {
             ProcessBuilder pb = new ProcessBuilder(ytDlpPath, "--version");
             Process p = pb.start();
             p.waitFor();
-            System.out.println("yt-dlp detected successfully.");
+            System.out.println("yt-dlp ready");
         } catch (Exception e) {
-            System.err.println("yt-dlp executable not found or not working on Render!");
+            System.err.println("yt-dlp not found on Render!");
         }
     }
 
-    private void loadProxyList() {
-        String list = System.getenv("YT_PROXY_LIST");
-        if (list != null && !list.isEmpty()) {
-            String[] arr = list.split(",");
-            for (String item : arr) {
-                item = item.trim();
-                if (!item.isEmpty()) {
-                    proxyList.add(item);
-                }
-            }
-        }
-        System.out.println("Loaded proxies: " + proxyList.size());
-    }
+    // Build proxy URL from environment variables
+    private String getProxyFromEnv() {
+        String host = System.getenv("YT_PROXY_HOST");
+        String port = System.getenv("YT_PROXY_PORT");
+        String user = System.getenv("YT_PROXY_USER");
+        String pass = System.getenv("YT_PROXY_PASS");
 
-    // Get next proxy (round-robin)
-    private synchronized String getNextProxy() {
-        if (proxyList.isEmpty()) return null;
+        if (host == null || port == null)
+            return null;
 
-        String raw = proxyList.get(proxyIndex);
-        proxyIndex = (proxyIndex + 1) % proxyList.size();
-
-        String[] parts = raw.split(":");
-        if (parts.length == 4) {
-            String ip = parts[0];
-            String port = parts[1];
-            String user = parts[2];
-            String pass = parts[3];
-            return "http://" + user + ":" + pass + "@" + ip + ":" + port;
+        if (user != null && pass != null) {
+            return "http://" + user + ":" + pass + "@" + host + ":" + port;
         }
 
-        return null;
+        return "http://" + host + ":" + port;
     }
 
     public String createJob(String url, String format, String quality) {
@@ -99,27 +78,31 @@ public class YtService {
             String fileName = jobId + (format.equals("mp3") ? ".mp3" : ".mp4");
             Path outputFile = downloadDir.resolve(fileName);
 
-            // Rotating Proxy
-            String proxyArg = getNextProxy();
-            System.out.println("Using proxy: " + proxyArg);
+            // **Single Webshare Proxy**
+            String proxy = getProxyFromEnv();
+            System.out.println("Using proxy: " + proxy);
 
             List<String> command = new ArrayList<>();
             command.add(ytDlpPath);
 
-            if (proxyArg != null) {
+            // add proxy
+            if (proxy != null) {
                 command.add("--proxy");
-                command.add(proxyArg);
+                command.add(proxy);
             }
 
+            // quality
             command.add("-f");
             command.add(quality);
 
+            // mp3 conversion
             if (format.equals("mp3")) {
                 command.add("--extract-audio");
                 command.add("--audio-format");
                 command.add("mp3");
             }
 
+            // output
             command.add("-o");
             command.add(outputFile.toString());
             command.add(url);
