@@ -15,15 +15,14 @@ public class YtService {
     private final Map<String, JobStatus> jobs = new ConcurrentHashMap<>();
     private final ExecutorService executor = Executors.newFixedThreadPool(3);
 
-    // Render-safe directory
     private final Path downloadDir = Paths.get("/tmp/downloads");
-
     private final String ytDlpPath;
+
+    private final Random random = new Random();
 
     public YtService() throws IOException {
         Files.createDirectories(downloadDir);
 
-        // Detect yt-dlp
         if (System.getProperty("os.name").toLowerCase().contains("win")) {
             this.ytDlpPath = "C:\\tools\\yt-dlp.exe";
         } else {
@@ -44,21 +43,27 @@ public class YtService {
         }
     }
 
-    // Build proxy URL from environment variables
+    // ✅ NEW — Read YT_PROXY_LIST from Render and pick one randomly
     private String getProxyFromEnv() {
-        String host = System.getenv("YT_PROXY_HOST");
-        String port = System.getenv("YT_PROXY_PORT");
-        String user = System.getenv("YT_PROXY_USER");
-        String pass = System.getenv("YT_PROXY_PASS");
+        String list = System.getenv("YT_PROXY_LIST");
 
-        if (host == null || port == null)
+        if (list == null || list.isBlank()) {
             return null;
-
-        if (user != null && pass != null) {
-            return "http://" + user + ":" + pass + "@" + host + ":" + port;
         }
 
-        return "http://" + host + ":" + port;
+        String[] proxies = list.split("\\r?\\n");
+
+        String proxy = proxies[random.nextInt(proxies.length)].trim();
+
+        // Convert to proper format if using "ip:port:user:pass"
+        if (!proxy.startsWith("http://") && proxy.contains(":")) {
+            String[] p = proxy.split(":");
+            if (p.length == 4) {
+                return "http://" + p[2] + ":" + p[3] + "@" + p[0] + ":" + p[1];
+            }
+        }
+
+        return proxy;
     }
 
     public String createJob(String url, String format, String quality) {
@@ -78,31 +83,26 @@ public class YtService {
             String fileName = jobId + (format.equals("mp3") ? ".mp3" : ".mp4");
             Path outputFile = downloadDir.resolve(fileName);
 
-            // **Single Webshare Proxy**
             String proxy = getProxyFromEnv();
             System.out.println("Using proxy: " + proxy);
 
             List<String> command = new ArrayList<>();
             command.add(ytDlpPath);
 
-            // add proxy
             if (proxy != null) {
                 command.add("--proxy");
                 command.add(proxy);
             }
 
-            // quality
             command.add("-f");
             command.add(quality);
 
-            // mp3 conversion
             if (format.equals("mp3")) {
                 command.add("--extract-audio");
                 command.add("--audio-format");
                 command.add("mp3");
             }
 
-            // output
             command.add("-o");
             command.add(outputFile.toString());
             command.add(url);
